@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAPTCHA Protection Demo - STEP 5</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #f0f0f0;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .vulnerable {
+            border-top: 5px solid #e74c3c;
+        }
+
+        .secure {
+            border-top: 5px solid #27ae60;
+        }
+
+        .panel h2 {
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .vulnerable h2 {
+            color: #e74c3c;
+        }
+
+        .secure h2 {
+            color: #27ae60;
+        }
+
+        .warning {
+            background: #fff5f5;
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            color: #721c24;
+        }
+
+        .success {
+            background: #f0fff4;
+            border-left: 4px solid #27ae60;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            color: #1f7a1f;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .vulnerable button {
+            background: #e74c3c;
+        }
+
+        .vulnerable button:hover {
+            background: #c0392b;
+        }
+
+        .secure button {
+            background: #27ae60;
+        }
+
+        .secure button:hover {
+            background: #229954;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .info-box {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 8px;
+        }
+
+        .info-box h3 {
+            color: #2980b9;
+            margin-bottom: 15px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+        }
+
+        .info-box li {
+            margin-bottom: 10px;
+            color: #34495e;
+        }
+
+        .captcha-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .stats {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-top: 30px;
+        }
+
+        .stats h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛡️ CAPTCHA Protection Demo</h1>
+        <p class="subtitle">STEP 5: Bot Attack Prevention with Google reCAPTCHA</p>
+
+        <div class="comparison">
+            <!-- Vulnerable Login -->
+            <div class="panel vulnerable">
+                <h2>🚨 Vulnerable Login</h2>
+                <div class="warning">
+                    <strong>⚠️ No CAPTCHA Protection</strong><br>
+                    Vulnerable to:
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Credential stuffing (millions of attempts)</li>
+                        <li>Brute-force attacks</li>
+                        <li>Automated bot attacks</li>
+                    </ul>
+                </div>
+
+                <form id="vulnerableForm">
+                    <div class="form-group">
+                        <label for="vulnEmail">Email:</label>
+                        <input type="email" id="vulnEmail" value="test@test.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="vulnPassword">Password:</label>
+                        <input type="password" id="vulnPassword" value="Password123" required>
+                    </div>
+                    <button type="submit">Login (Vulnerable)</button>
+                </form>
+
+                <div class="result" id="vulnResult"></div>
+            </div>
+
+            <!-- Secure Login with CAPTCHA -->
+            <div class="panel secure">
+                <h2>✅ Protected Login</h2>
+                <div class="success">
+                    <strong>✅ CAPTCHA Protection Enabled</strong><br>
+                    Protected against:
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Automated bot attacks</li>
+                        <li>Credential stuffing</li>
+                        <li>Mass login attempts</li>
+                    </ul>
+                </div>
+
+                <form id="secureForm">
+                    <div class="form-group">
+                        <label for="secureEmail">Email:</label>
+                        <input type="email" id="secureEmail" value="test@test.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="securePassword">Password:</label>
+                        <input type="password" id="securePassword" value="Password123" required>
+                    </div>
+
+                    <!-- reCAPTCHA v2 Widget -->
+                    <div class="captcha-container">
+                        <div class="g-recaptcha" 
+                             data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+                    </div>
+
+                    <button type="submit">Login (Protected)</button>
+                </form>
+
+                <div class="result" id="secureResult"></div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats">
+            <h2>📊 Attack Statistics</h2>
+            <div class="stat-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="vulnAttempts">0</div>
+                    <div class="stat-label">Vulnerable Attempts</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="secureAttempts">0</div>
+                    <div class="stat-label">Protected Attempts</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="blockedBots">0</div>
+                    <div class="stat-label">Bots Blocked</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="botReduction">0%</div>
+                    <div class="stat-label">Bot Reduction</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Information Box -->
+        <div class="info-box">
+            <h3>🎓 Key Concepts:</h3>
+            <ul>
+                <li><strong>Credential Stuffing:</strong> Attackers use leaked credentials from other breaches to try logging into your app</li>
+                <li><strong>Server-Side Verification:</strong> CAPTCHA tokens MUST be verified on the server - never trust client-side validation</li>
+                <li><strong>Test Keys:</strong> This demo uses Google's test keys that always succeed (for demo purposes only)</li>
+                <li><strong>Production Keys:</strong> Get your own keys from <a href="https://www.google.com/recaptcha/admin" target="_blank">Google reCAPTCHA Admin</a></li>
+                <li><strong>reCAPTCHA v2:</strong> Shows checkbox challenge - clear user interaction</li>
+                <li><strong>reCAPTCHA v3:</strong> Invisible score-based detection (0.0-1.0)</li>
+            </ul>
+        </div>
+
+        <div class="info-box" style="background: #fff3cd; border-left-color: #ffc107;">
+            <h3>⚡ Try This:</h3>
+            <ul>
+                <li>Click "Login (Vulnerable)" multiple times - notice no CAPTCHA required</li>
+                <li>Try "Login (Protected)" - you must solve the CAPTCHA first</li>
+                <li>Watch the statistics update showing bot prevention effectiveness</li>
+                <li>Try refreshing and logging in again - CAPTCHA required each time</li>
+            </ul>
+        </div>
+
+        <div class="info-box" style="background: #f8d7da; border-left-color: #e74c3c;">
+            <h3>🚨 Real-World Impact:</h3>
+            <ul>
+                <li><strong>Without CAPTCHA:</strong> Bots can attempt 10,000+ logins per minute</li>
+                <li><strong>With CAPTCHA:</strong> Reduced to ~1 attempt per minute (human-limited)</li>
+                <li><strong>Cost Savings:</strong> Prevents $300K-$5M in breach costs</li>
+                <li><strong>User Experience:</strong> Minor friction vs massive security improvement</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api/auth';
+        let vulnAttempts = 0;
+        let secureAttempts = 0;
+        let blockedBots = 0;
+
+        function updateStats() {
+            document.getElementById('vulnAttempts').textContent = vulnAttempts;
+            document.getElementById('secureAttempts').textContent = secureAttempts;
+            document.getElementById('blockedBots').textContent = blockedBots;
+            
+            const total = vulnAttempts + secureAttempts;
+            const reduction = total > 0 ? Math.round((blockedBots / total) * 100) : 0;
+            document.getElementById('botReduction').textContent = reduction + '%';
+        }
+
+        function showResult(elementId, message, isSuccess) {
+            const resultEl = document.getElementById(elementId);
+            resultEl.textContent = message;
+            resultEl.className = 'result ' + (isSuccess ? 'success' : 'error');
+            resultEl.style.display = 'block';
+            
+            setTimeout(() => {
+                resultEl.style.display = 'none';
+            }, 5000);
+        }
+
+        // Vulnerable login (no CAPTCHA)
+        document.getElementById('vulnerableForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            vulnAttempts++;
+            updateStats();
+
+            const email = document.getElementById('vulnEmail').value;
+            const password = document.getElementById('vulnPassword').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/login-no-captcha`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResult('vulnResult', 
+                        `⚠️ ${result.message} - ${result.warning}`, 
+                        true);
+                } else {
+                    showResult('vulnResult', 
+                        `❌ ${result.message}`, 
+                        false);
+                }
+            } catch (error) {
+                showResult('vulnResult', '❌ Error: ' + error.message, false);
+            }
+        });
+
+        // Secure login (with CAPTCHA)
+        document.getElementById('secureForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            secureAttempts++;
+
+            const email = document.getElementById('secureEmail').value;
+            const password = document.getElementById('securePassword').value;
+            const captchaToken = grecaptcha.getResponse();
+
+            if (!captchaToken) {
+                blockedBots++;
+                updateStats();
+                showResult('secureResult', '❌ Please complete the CAPTCHA challenge', false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/login-with-captcha`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, captchaToken })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResult('secureResult', 
+                        `✅ ${result.message} - ${result.security}`, 
+                        true);
+                } else {
+                    blockedBots++;
+                    updateStats();
+                    showResult('secureResult', 
+                        `❌ ${result.message}${result.error ? ' - ' + result.error : ''}`, 
+                        false);
+                }
+
+                // Reset CAPTCHA for next attempt
+                grecaptcha.reset();
+            } catch (error) {
+                showResult('secureResult', '❌ Error: ' + error.message, false);
+            }
+        });
+
+        // Initialize stats
+        updateStats();
+    </script>
+</body>
+</html>

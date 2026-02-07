@@ -1,0 +1,266 @@
+@page
+@model Step8Model
+@{
+    ViewData["Title"] = "STEP 8: Security Logs Viewer";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="bi bi-8-circle-fill text-primary"></i> STEP 8: Security Logs Viewer</h2>
+                    <p class="text-muted">Real-time security event monitoring with Serilog + SQL Server</p>
+                </div>
+                <a href="/" class="btn btn-outline-secondary"><i class="bi bi-house"></i> Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Description -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="highlight-box highlight-success">
+                <h5><i class="bi bi-shield-check"></i> Security Logging Implementation</h5>
+                <ul class="mb-0">
+                    <li><strong>Dual Logging:</strong> File-based (logs/) + Database (SQL Server SecurityLogs table)</li>
+                    <li><strong>Technology:</strong> Serilog with MSSqlServer sink</li>
+                    <li><strong>Events Tracked:</strong> Authentication, API calls, validation failures, rate limit violations</li>
+                    <li><strong>Log Levels:</strong> Information, Warning, Error, Critical</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <label class="form-label">Event Type</label>
+            <select id="eventTypeFilter" class="form-select" onchange="loadLogs()">
+                <option value="">All Events</option>
+                <option value="LoginSuccess">Login Success</option>
+                <option value="LoginFailure">Login Failure</option>
+                <option value="InvalidPassword">Invalid Password</option>
+                <option value="MfaSuccess">MFA Success</option>
+                <option value="MfaFailure">MFA Failure</option>
+                <option value="SqlInjectionAttempt">SQL Injection Attempt</option>
+                <option value="SqlInjectionDetected">SQL Injection Detected</option>
+                <option value="XssAttemptDetected">XSS Attempt</option>
+                <option value="RateLimitExceeded">Rate Limit Exceeded</option>
+                <option value="ValidationSuccess">Validation Success</option>
+                <option value="UnauthorizedAccess">Unauthorized Access</option>
+                <option value="ForbiddenAccess">Forbidden Access</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Log Level</label>
+            <select id="logLevelFilter" class="form-select" onchange="loadLogs()">
+                <option value="">All Levels</option>
+                <option value="Information">Information</option>
+                <option value="Warning">Warning</option>
+                <option value="Error">Error</option>
+                <option value="Critical">Critical</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Limit</label>
+            <select id="limitFilter" class="form-select" onchange="loadLogs()">
+                <option value="50">Last 50</option>
+                <option value="100" selected>Last 100</option>
+                <option value="200">Last 200</option>
+                <option value="500">Last 500</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="autoRefresh" onchange="toggleAutoRefresh()">
+                <label class="form-check-label" for="autoRefresh">
+                    Auto-refresh (5s)
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <button class="btn btn-primary" onclick="loadLogs()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh Now
+            </button>
+            <button class="btn btn-success" onclick="generateTestLogs()">
+                <i class="bi bi-plus-circle"></i> Generate Test Logs
+            </button>
+            <span id="lastRefresh" class="text-muted ms-3"></span>
+        </div>
+    </div>
+
+    <!-- Logs Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <i class="bi bi-table"></i> Security Event Logs
+                    <span id="logCount" class="badge bg-light text-dark ms-2">0</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+                        <table class="table table-hover table-sm mb-0">
+                            <thead class="table-dark sticky-top">
+                                <tr>
+                                    <th style="width: 180px;">Timestamp</th>
+                                    <th style="width: 100px;">Level</th>
+                                    <th style="width: 150px;">Event Type</th>
+                                    <th style="width: 120px;">User ID</th>
+                                    <th style="width: 130px;">IP Address</th>
+                                    <th>Message</th>
+                                    <th style="width: 100px;">Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTableBody">
+                                <tr>
+                                    <td colspan="7" class="text-center p-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="mt-2 text-muted">Loading security logs...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log Details Modal -->
+    <div class="modal fade" id="logDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Log Entry Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <pre id="logDetailsContent" class="code-block"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let autoRefreshInterval = null;
+
+    // Load logs on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadLogs();
+    });
+
+    // Load logs from API
+    async function loadLogs() {
+        const eventType = document.getElementById('eventTypeFilter').value;
+        const logLevel = document.getElementById('logLevelFilter').value;
+        const limit = document.getElementById('limitFilter').value;
+
+        let url = `/api/logs?limit=${limit}`;
+        if (eventType) url += `&eventType=${eventType}`;
+        if (logLevel) url += `&level=${logLevel}`;
+
+        try {
+            const response = await fetch(url);
+            const logs = await response.json();
+
+            renderLogs(logs);
+            document.getElementById('logCount').textContent = logs.length;
+            document.getElementById('lastRefresh').textContent = `Last refresh: ${new Date().toLocaleTimeString()}`;
+        } catch (error) {
+            document.getElementById('logsTableBody').innerHTML = 
+                `<tr><td colspan="7" class="text-center text-danger p-4">Failed to load logs: ${error.message}</td></tr>`;
+        }
+    }
+
+    // Render logs in table
+    function renderLogs(logs) {
+        const tbody = document.getElementById('logsTableBody');
+        
+        if (logs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4 text-muted">No logs found</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = logs.map(log => {
+            const rowClass = `log-row-${log.level.toLowerCase()}`;
+            const levelBadge = getLevelBadge(log.level);
+            
+            return `
+                <tr class="${rowClass}">
+                    <td><small>${formatDate(log.timestamp)}</small></td>
+                    <td>${levelBadge}</td>
+                    <td><span class="badge bg-secondary">${log.eventType || 'General'}</span></td>
+                    <td><code>${log.userId || 'N/A'}</code></td>
+                    <td><code>${log.ipAddress || 'N/A'}</code></td>
+                    <td>${escapeHtml(log.message)}</td>
+                    <td>
+                        ${log.properties ? `<button class="btn btn-sm btn-outline-info" onclick='showDetails(${JSON.stringify(log).replace(/'/g, "\\'")})'><i class="bi bi-eye"></i></button>` : ''}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Get badge HTML for log level
+    function getLevelBadge(level) {
+        const badges = {
+            'Information': '<span class="badge bg-info">INFO</span>',
+            'Warning': '<span class="badge bg-warning text-dark">WARN</span>',
+            'Error': '<span class="badge bg-danger">ERROR</span>',
+            'Critical': '<span class="badge bg-dark">CRITICAL</span>'
+        };
+        return badges[level] || '<span class="badge bg-secondary">UNKNOWN</span>';
+    }
+
+    // Show log details modal
+    function showDetails(log) {
+        document.getElementById('logDetailsContent').textContent = JSON.stringify(log, null, 2);
+        new bootstrap.Modal(document.getElementById('logDetailsModal')).show();
+    }
+
+    // Toggle auto-refresh
+    function toggleAutoRefresh() {
+        const enabled = document.getElementById('autoRefresh').checked;
+        
+        if (enabled) {
+            loadLogs();
+            autoRefreshInterval = setInterval(loadLogs, 5000);
+        } else {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+    }
+
+    // Generate test logs
+    async function generateTestLogs() {
+        try {
+            await fetch('/api/logs/generate-test', { method: 'POST' });
+            alert('Test logs generated successfully!');
+            loadLogs();
+        } catch (error) {
+            alert('Failed to generate test logs: ' + error.message);
+        }
+    }
+
+    function formatDate(dateString) {
+        return new Date(dateString).toLocaleString();
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+</script>
+}

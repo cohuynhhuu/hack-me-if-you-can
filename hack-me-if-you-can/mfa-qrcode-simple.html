@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MFA QR Code</title>
+    <style>
+        body { font-family: Arial; text-align: center; margin: 50px; }
+        .secret { 
+            background: #f0f0f0; 
+            padding: 20px; 
+            margin: 20px;
+            font-size: 18px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 Scan with Google Authenticator</h1>
+    <img src="data:image/png;base64,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" alt="QR Code" />
+    <div class="secret">Secret: TSP7PUL5MEGHAUN7JNLBXC7FSOUGEKR2</div>
+    <p>Scan the QR code or enter the secret manually</p>
+</body>
+</html>

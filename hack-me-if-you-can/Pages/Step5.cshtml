@@ -1,0 +1,36 @@
+@page
+@model Step5Model
+@{ ViewData["Title"] = "STEP 5: Secrets Management"; }
+<div class="container mt-4">
+<div class="row mb-4">
+<div class="col-12"><div class="d-flex justify-content-between align-items-center">
+<h2><i class="bi bi-5-circle-fill text-secondary"></i> STEP 5: Secrets Management</h2>
+<a href="/" class="btn btn-outline-secondary"><i class="bi bi-house"></i> Dashboard</a>
+</div></div></div>
+<div class="row">
+<div class="col-md-6"><div class="demo-section vulnerable-section">
+<h4 class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Vulnerable</h4>
+<p><strong>Problem:</strong> Hardcoded API keys in source code</p>
+<div class="code-block mb-3">const apiKey = "sk_live_abc123xyz789";</div>
+<button class="btn btn-vulnerable w-100" onclick="showResult('vulnSecretResult', 'error', 'API key exposed in source code!')">
+<i class="bi bi-bug-fill"></i> Show Hardcoded Secret
+</button>
+<div id="vulnSecretResult" class="result-panel"></div>
+</div></div>
+<div class="col-md-6"><div class="demo-section secure-section">
+<h4 class="text-success"><i class="bi bi-shield-check-fill"></i> Secure</h4>
+<p><strong>Solution:</strong> Configuration files + User Secrets + Environment Variables</p>
+<div class="code-block mb-3">var apiKey = config["ApiKey"];</div>
+<button class="btn btn-secure w-100" onclick="showResult('secureSecretResult', 'success', 'Secrets loaded from secure configuration')">
+<i class="bi bi-shield-fill"></i> Load from Config
+</button>
+<div id="secureSecretResult" class="result-panel"></div>
+</div></div></div>
+<div class="row mt-4"><div class="col-12"><div class="highlight-box highlight-info">
+<h5><i class="bi bi-info-circle-fill"></i> Secret Management</h5>
+<ul class="mb-0">
+<li>Use appsettings.json (for non-sensitive config)</li>
+<li>User Secrets for local development</li>
+<li>Azure Key Vault for production</li>
+<li>Never commit secrets to source control</li>
+</ul></div></div></div></div>

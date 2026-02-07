@@ -1,0 +1,90 @@
+@page
+@model Step1Model
+@{
+    ViewData["Title"] = "STEP 1: SQL Injection";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="bi bi-1-circle-fill text-danger"></i> STEP 1: SQL Injection</h2>
+                <a href="/" class="btn btn-outline-secondary"><i class="bi bi-house"></i> Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="demo-section vulnerable-section">
+                <h4 class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Vulnerable</h4>
+                <p><strong>Problem:</strong> Raw SQL with string concatenation</p>
+                <div class="mb-3">
+                    <label class="form-label">Search Email (Try: <code>admin@test.com'' OR 1=1--</code>)</label>
+                    <input type="text" class="form-control" id="vulnEmail" placeholder="admin@test.com">
+                </div>
+                <button class="btn btn-vulnerable w-100" onclick="testSQLVulnerable()">
+                    <i class="bi bi-bug-fill"></i> Test Vulnerable Query
+                </button>
+                <div id="vulnSQLResult" class="result-panel"></div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="demo-section secure-section">
+                <h4 class="text-success"><i class="bi bi-shield-check-fill"></i> Secure</h4>
+                <p><strong>Solution:</strong> Parameterized queries with Entity Framework</p>
+                <div class="mb-3">
+                    <label class="form-label">Search Email (Same input - safe)</label>
+                    <input type="text" class="form-control" id="secureEmail" placeholder="admin@test.com">
+                </div>
+                <button class="btn btn-secure w-100" onclick="testSQLSecure()">
+                    <i class="bi bi-shield-fill"></i> Test Secure Query
+                </button>
+                <div id="secureSQLResult" class="result-panel"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="highlight-box highlight-info">
+                <h5><i class="bi bi-info-circle-fill"></i> SQL Injection Prevention</h5>
+                <ul class="mb-0">
+                    <li>Use parameterized queries or ORM (Entity Framework)</li>
+                    <li>Never concatenate user input into SQL strings</li>
+                    <li>Apply principle of least privilege to database accounts</li>
+                    <li>Input validation as defense in depth</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    async function testSQLVulnerable() {
+        const email = document.getElementById('vulnEmail').value;
+        const response = await fetch('/api/auth/vulnerable-login?email=' + encodeURIComponent(email));
+        const data = await response.json();
+        
+        if (data.users && data.users.length > 0) {
+            showResult('vulnSQLResult', 'error', 'SQL Injection successful! Retrieved ' + data.users.length + ' users', data.users.slice(0, 3));
+        } else {
+            showResult('vulnSQLResult', 'warning', 'Query executed but no results', data);
+        }
+    }
+
+    async function testSQLSecure() {
+        const email = document.getElementById('secureEmail').value;
+        const response = await fetch('/api/auth/secure-login?email=' + encodeURIComponent(email));
+        const data = await response.json();
+        
+        if (data.user) {
+            showResult('secureSQLResult', 'success', 'User found securely', data.user);
+        } else {
+            showResult('secureSQLResult', 'success', 'No user found - query parameters sanitized', data);
+        }
+    }
+</script>
+}

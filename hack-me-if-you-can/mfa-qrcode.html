@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MFA Setup - Google Authenticator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 { color: #1a73e8; }
+        .qr-container {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+        .secret {
+            background: #fff;
+            padding: 15px;
+            border: 2px solid #1a73e8;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 18px;
+            margin: 20px 0;
+            word-break: break-all;
+        }
+        .instructions {
+            text-align: left;
+            background: #e8f0fe;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .instructions li {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 Multi-Factor Authentication Setup</h1>
+    <p>Scan this QR code with <strong>Google Authenticator</strong></p>
+    
+    <div class="qr-container">
+        <img src="data:image/png;base64,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" alt="QR Code for Google Authenticator" />
+    </div>
+    
+    <p><strong>Or enter this secret manually:</strong></p>
+    <div class="secret">4DSCID6JGWUA6RQBZFHYYSZGXY7EMD7G</div>
+    
+    <div class="instructions">
+        <h3>Setup Instructions:</h3>
+        <ol>
+            <li>Install <strong>Google Authenticator</strong> on your phone (iOS/Android)</li>
+            <li>Open the app and tap <strong>+</strong> (Add account)</li>
+            <li>Choose <strong>"Scan a QR code"</strong> or <strong>"Enter a setup key"</strong></li>
+            <li>Scan the QR code above or enter the secret manually</li>
+            <li>The app will show a 6-digit code that changes every 30 seconds</li>
+            <li>Use this code to confirm MFA setup in the next test</li>
+        </ol>
+    </div>
+    
+    <p><em>Keep this secret safe! It's your backup if you lose your phone.</em></p>
+</body>
+</html>
