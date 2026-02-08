@@ -61,10 +61,24 @@ public class LoginWithMfaRequest
     [Required(ErrorMessage = "Password is required")]
     public string Password { get; set; } = string.Empty;
 
+    // Optional - for single-step MFA flow
+    [StringLength(6, MinimumLength = 6, ErrorMessage = "Code must be exactly 6 digits")]
+    [RegularExpression(@"^\d{6}$", ErrorMessage = "Code must be 6 digits")]
+    public string? MfaCode { get; set; }
+}
+
+/// <summary>
+/// Request to verify MFA code and complete login (two-step flow)
+/// </summary>
+public class VerifyMfaLoginRequest
+{
+    [Required(ErrorMessage = "MFA token is required")]
+    public string MfaToken { get; set; } = string.Empty;
+
     [Required(ErrorMessage = "MFA code is required")]
     [StringLength(6, MinimumLength = 6, ErrorMessage = "Code must be exactly 6 digits")]
     [RegularExpression(@"^\d{6}$", ErrorMessage = "Code must be 6 digits")]
-    public string MfaCode { get; set; } = string.Empty;
+    public string Code { get; set; } = string.Empty;
 }
 
 /// <summary>

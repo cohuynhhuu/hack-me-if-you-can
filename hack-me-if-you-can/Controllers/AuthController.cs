@@ -1391,8 +1391,8 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// STEP 7: Login WITH MFA verification (SECURE)
-    /// Properly enforces MFA: password + TOTP code required
+    /// STEP 7: Login WITH MFA verification (SECURE) - Step 1: Password verification
+    /// Two-step flow: First verify password, then require MFA code
     /// This blocks credential stuffing attacks because stolen passwords alone aren't enough
     /// </summary>
     [HttpPost("login-with-mfa")]
@@ -1405,7 +1405,7 @@ public class AuthController : ControllerBase
 
             if (user == null || string.IsNullOrEmpty(user.PasswordHash))
             {
-                return BadRequest(new { success = false, message = "Invalid credentials" });
+                return Unauthorized(new { success = false, message = "Invalid credentials" });
             }
 
             // Step 1: Verify password
@@ -1417,62 +1417,133 @@ public class AuthController : ControllerBase
 
             if (passwordValid != PasswordVerificationResult.Success)
             {
-                return BadRequest(new { success = false, message = "Invalid credentials" });
+                return Unauthorized(new { success = false, message = "Invalid credentials" });
             }
 
             // Step 2: Check if MFA is enabled for this user
             if (user.MfaEnabled)
             {
-                if (string.IsNullOrEmpty(request.MfaCode))
-                {
-                    return BadRequest(new MfaRequiredResponse
-                    {
-                        MfaRequired = true,
-                        Message = "MFA code required. Please enter the 6-digit code from Google Authenticator."
-                    });
-                }
+                // For two-step flow, return MFA token for next step
+                var mfaToken = Guid.NewGuid().ToString();
+                
+                // Cache the user ID with mfaToken (in production, use Redis/distributed cache)
+                // For demo, we'll use a simple in-memory approach via the token itself
+                var tokenData = Convert.ToBase64String(
+                    System.Text.Encoding.UTF8.GetBytes($"{user.Id}:{DateTime.UtcNow:O}")
+                );
 
-                // Step 3: Verify MFA code
-                var isMfaValid = _mfaService.VerifyTotp(user.MfaSecret!, request.MfaCode);
-                if (!isMfaValid)
+                _logger.LogInformation("Password verified for user {Email}, MFA required", user.Email);
+
+                return Ok(new
                 {
-                    _logger.LogWarning(
-                        "Failed MFA attempt for user {Email}. Code: {Code}",
-                        user.Email,
-                        request.MfaCode
-                    );
-                    
+                    success = false,
+                    requiresMfa = true,
+                    message = "Password verified. Please enter your MFA code.",
+                    mfaToken = tokenData,
+                    userId = user.Id
+                });
+            }
+
+            // No MFA - generate JWT token immediately
+            var token = _jwtTokenService.GenerateToken(user);
+
+            _logger.LogInformation("✅ Login successful for user {Email} (no MFA)", user.Email);
+
+            return Ok(new
+            {
+                success = true,
+                message = "✅ Login successful (no MFA configured)",
+                token,
+                userId = user.Id,
+                email = user.Email,
+                mfaEnabled = false,
+                security = "Consider enabling MFA for better security"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in MFA login step 1");
+            return StatusCode(500, new { success = false, message = "An error occurred during login" });
+        }
+    }
+
+    /// <summary>
+    /// STEP 7: Verify MFA code and complete login (SECURE) - Step 2: MFA verification
+    /// Validates TOTP code and returns JWT token
+    /// </summary>
+    [HttpPost("verify-mfa-login")]
+    public async Task<IActionResult> VerifyMfaLogin([FromBody] VerifyMfaLoginRequest request)
+    {
+        try
+        {
+            // Decode mfaToken to get user ID
+            var tokenData = System.Text.Encoding.UTF8.GetString(
+                Convert.FromBase64String(request.MfaToken)
+            );
+            
+            var parts = tokenData.Split(':');
+            if (parts.Length != 2 || !int.TryParse(parts[0], out var userId))
+            {
+                return BadRequest(new { success = false, message = "Invalid MFA token" });
+            }
+
+            // Check token age (valid for 5 minutes)
+            if (DateTime.TryParse(parts[1], out var tokenTime))
+            {
+                if (DateTime.UtcNow - tokenTime > TimeSpan.FromMinutes(5))
+                {
                     return BadRequest(new { 
                         success = false, 
-                        message = "Invalid MFA code. Please check your authenticator app." 
+                        message = "MFA token expired. Please login again." 
                     });
                 }
+            }
 
-                _logger.LogInformation("✅ Successful MFA login for user {Email}", user.Email);
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null || !user.MfaEnabled || string.IsNullOrEmpty(user.MfaSecret))
+            {
+                return BadRequest(new { success = false, message = "Invalid user or MFA not enabled" });
+            }
+
+            // Verify TOTP code
+            var isMfaValid = _mfaService.VerifyTotp(user.MfaSecret, request.Code);
+            if (!isMfaValid)
+            {
+                _logger.LogWarning(
+                    "Failed MFA verification for user {Email}. Code: {Code}",
+                    user.Email,
+                    request.Code
+                );
+                
+                return BadRequest(new { 
+                    success = false, 
+                    message = "Invalid MFA code. Please check your authenticator app and try again." 
+                });
             }
 
             // Generate JWT token
             var token = _jwtTokenService.GenerateToken(user);
 
+            _logger.LogInformation("✅ Successful MFA login for user {Email}", user.Email);
+
             return Ok(new
             {
                 success = true,
-                message = user.MfaEnabled 
-                    ? "✅ Login successful with MFA verification" 
-                    : "✅ Login successful (no MFA configured)",
+                message = "✅ Login successful with MFA verification",
                 token,
-                userId = user.Id,
-                email = user.Email,
-                mfaEnabled = user.MfaEnabled,
-                security = user.MfaEnabled 
-                    ? "Your account is protected by two-factor authentication" 
-                    : "Consider enabling MFA for better security"
+                user = new
+                {
+                    id = user.Id,
+                    email = user.Email
+                },
+                mfaEnabled = true,
+                security = "Your account is protected by two-factor authentication ✓"
             });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error in MFA login");
-            return StatusCode(500, new { success = false, message = "An error occurred during login" });
+            _logger.LogError(ex, "Error in MFA verification");
+            return StatusCode(500, new { success = false, message = "An error occurred during MFA verification" });
         }
     }
 

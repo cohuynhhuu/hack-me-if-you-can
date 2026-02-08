@@ -1,69 +1,221 @@
 @page
 @model Step4Model
 @{
-    ViewData["Title"] = "STEP 4: Authentication & Authorization";
+    ViewData["Title"] = "STEP 4: JWT & MFA Authentication";
 }
 
 <div class="container mt-4">
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
-                <h2><i class="bi bi-4-circle-fill text-primary"></i> STEP 4: Authentication</h2>
+                <h2><i class="bi bi-4-circle-fill text-primary"></i> STEP 4: JWT & MFA Authentication</h2>
                 <a href="/" class="btn btn-outline-secondary"><i class="bi bi-house"></i> Dashboard</a>
             </div>
         </div>
     </div>
 
-    <div class="row">
+    <!-- ============== SECTION 1: JWT TOKEN DEMO ============== -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="mb-3"><i class="bi bi-key-fill text-warning"></i> Section 1: JWT Token Generation & Validation</h3>
+        </div>
+    </div>
+
+    <div class="row mb-4">
         <div class="col-md-6">
             <div class="demo-section vulnerable-section">
-                <h4 class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Vulnerable</h4>
-                <p><strong>Problem:</strong> Plain text passwords, weak session tokens</p>
-                <form onsubmit="testAuthVulnerable(event)">
+                <h4 class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Basic Login (No JWT)</h4>
+                <p><strong>Problem:</strong> Session-based auth - not scalable</p>
+                <form onsubmit="loginNoJwt(event)">
                     <div class="mb-3">
-                        <input type="text" class="form-control" placeholder="Username" id="vulnUser" required>
+                        <input type="email" class="form-control" placeholder="Email" id="noJwtEmail" value="demo@test.com" required>
                     </div>
                     <div class="mb-3">
-                        <input type="password" class="form-control" placeholder="Password" id="vulnPass" required>
+                        <input type="password" class="form-control" placeholder="Password" id="noJwtPassword" value="SecurePass123!" required>
                     </div>
                     <button type="submit" class="btn btn-vulnerable w-100">
-                        <i class="bi bi-bug-fill"></i> Login (Insecure)
+                        <i class="bi bi-bug-fill"></i> Login (Session-based)
                     </button>
                 </form>
-                <div id="vulnAuthResult" class="result-panel"></div>
+                <div id="noJwtResult" class="result-panel mt-3"></div>
             </div>
         </div>
 
         <div class="col-md-6">
             <div class="demo-section secure-section">
-                <h4 class="text-success"><i class="bi bi-shield-check-fill"></i> Secure</h4>
-                <p><strong>Solution:</strong> BCrypt hashing + JWT tokens</p>
-                <form onsubmit="testAuthSecure(event)">
+                <h4 class="text-success"><i class="bi bi-shield-check-fill"></i> JWT Login</h4>
+                <p><strong>Solution:</strong> Stateless tokens with strong secrets</p>
+                <form onsubmit="loginWithJwt(event)">
                     <div class="mb-3">
-                        <input type="text" class="form-control" placeholder="Username" id="secureUser" required>
+                        <input type="email" class="form-control" placeholder="Email" id="jwtEmail" value="demo@test.com" required>
                     </div>
                     <div class="mb-3">
-                        <input type="password" class="form-control" placeholder="Password" id="securePass" required>
+                        <input type="password" class="form-control" placeholder="Password" id="jwtPassword" value="SecurePass123!" required>
                     </div>
                     <button type="submit" class="btn btn-secure w-100">
-                        <i class="bi bi-shield-fill"></i> Login (Secure)
+                        <i class="bi bi-shield-fill"></i> Login (JWT Token)
                     </button>
                 </form>
-                <div id="secureAuthResult" class="result-panel"></div>
+                <div id="jwtResult" class="result-panel mt-3"></div>
             </div>
         </div>
     </div>
 
+    <!-- JWT Token Inspector -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="demo-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h4><i class="bi bi-code-slash"></i> JWT Token Inspector</h4>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Paste JWT Token to Inspect:</label>
+                    <textarea class="form-control" id="tokenInput" rows="4" placeholder="Paste your JWT token here..."></textarea>
+                </div>
+                <button onclick="decodeToken()" class="btn btn-light">
+                    <i class="bi bi-eye-fill"></i> Decode Token
+                </button>
+                <button onclick="validateToken()" class="btn btn-outline-light ms-2">
+                    <i class="bi bi-shield-check"></i> Validate Token
+                </button>
+                <div id="tokenInspectorResult" class="result-panel mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Protected Resource Test -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="demo-section" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                <h4><i class="bi bi-lock-fill"></i> Protected API Endpoint Test</h4>
+                <p>Test accessing a protected endpoint using your JWT token</p>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">JWT Token:</label>
+                    <input type="text" class="form-control" id="protectedToken" placeholder="Paste token from login above">
+                </div>
+                <button onclick="testProtectedEndpoint()" class="btn btn-light">
+                    <i class="bi bi-shield-lock-fill"></i> Access Protected Resource
+                </button>
+                <div id="protectedResult" class="result-panel mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============== SECTION 2: MFA ENROLLMENT ============== -->
+    <div class="row mb-4 mt-5">
+        <div class="col-12">
+            <h3 class="mb-3"><i class="bi bi-shield-lock-fill text-info"></i> Section 2: Multi-Factor Authentication (MFA)</h3>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="demo-section" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                <h4><i class="bi bi-person-plus-fill"></i> Step 1: Enable MFA</h4>
+                <p><strong>Generate QR Code for Google Authenticator</strong></p>
+                <form onsubmit="enableMfa(event)">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">User ID:</label>
+                        <input type="number" class="form-control" id="mfaUserId" value="1" required>
+                        <small class="text-white-50">Use existing user ID from database</small>
+                    </div>
+                    <button type="submit" class="btn btn-light w-100">
+                        <i class="bi bi-qr-code"></i> Generate QR Code
+                    </button>
+                </form>
+                <div id="mfaEnableResult" class="result-panel mt-3"></div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="demo-section" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+                <h4><i class="bi bi-check-circle-fill"></i> Step 2: Confirm MFA</h4>
+                <p><strong>Verify code from Google Authenticator</strong></p>
+                <form onsubmit="confirmMfa(event)">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">User ID:</label>
+                        <input type="number" class="form-control" id="confirmUserId" value="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">6-Digit Code:</label>
+                        <input type="text" class="form-control" id="confirmCode" placeholder="123456" maxlength="6" required>
+                    </div>
+                    <button type="submit" class="btn btn-light w-100">
+                        <i class="bi bi-shield-check"></i> Confirm MFA
+                    </button>
+                </form>
+                <div id="mfaConfirmResult" class="result-panel mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============== SECTION 3: MFA LOGIN ============== -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="demo-section" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
+                <h4><i class="bi bi-box-arrow-in-right"></i> Section 3: Login with MFA</h4>
+                <p><strong>Complete two-factor authentication flow</strong></p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Step 1: Email & Password</h5>
+                        <form onsubmit="loginWithMfa(event)">
+                            <div class="mb-3">
+                                <input type="email" class="form-control" id="mfaLoginEmail" value="demo@test.com" required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="password" class="form-control" id="mfaLoginPassword" value="SecurePass123!" required>
+                            </div>
+                            <button type="submit" class="btn btn-light w-100">
+                                <i class="bi bi-arrow-right-circle"></i> Step 1: Verify Password
+                            </button>
+                        </form>
+                        <div id="mfaLoginStep1Result" class="result-panel mt-3"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Step 2: MFA Code</h5>
+                        <form onsubmit="verifyMfaLogin(event)">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">6-Digit TOTP Code:</label>
+                                <input type="text" class="form-control" id="mfaLoginCode" placeholder="123456" maxlength="6" required>
+                            </div>
+                            <button type="submit" class="btn btn-light w-100">
+                                <i class="bi bi-shield-check"></i> Step 2: Complete Login
+                            </button>
+                        </form>
+                        <div id="mfaLoginStep2Result" class="result-panel mt-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Best Practices -->
     <div class="row mt-4">
         <div class="col-12">
             <div class="highlight-box highlight-info">
-                <h5><i class="bi bi-info-circle-fill"></i> Auth Best Practices</h5>
-                <ul class="mb-0">
-                    <li>BCrypt/Argon2 for password hashing (not MD5/SHA1)</li>
-                    <li>JWT tokens with strong secrets and expiration</li>
-                    <li>Multi-factor authentication (MFA)</li>
-                    <li>Secure session management</li>
-                </ul>
+                <h5><i class="bi bi-info-circle-fill"></i> Authentication Best Practices</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary">JWT Tokens:</h6>
+                        <ul>
+                            <li>Use strong secrets (256+ bits, cryptographically random)</li>
+                            <li>Set appropriate expiration times (15-60 minutes)</li>
+                            <li>Include minimal claims (avoid sensitive data)</li>
+                            <li>Validate signature on every request</li>
+                            <li>Use HTTPS to prevent token interception</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-success">Multi-Factor Authentication:</h6>
+                        <ul>
+                            <li>TOTP (Time-based One-Time Password) using Google Authenticator</li>
+                            <li>Backup codes for account recovery</li>
+                            <li>Rate limiting on MFA attempts</li>
+                            <li>Secure secret storage (encrypted)</li>
+                            <li>Required for privileged operations</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -71,26 +223,294 @@
 
 @section Scripts {
 <script>
-    async function testAuthVulnerable(e) {
+    let currentUserMfaToken = null;
+
+    // ============== JWT TOKEN FUNCTIONS ==============
+    
+    async function loginNoJwt(e) {
         e.preventDefault();
-        showResult('vulnAuthResult', 'warning', 'Password stored in plain text - easily compromised!');
+        const email = document.getElementById('noJwtEmail').value;
+        const password = document.getElementById('noJwtPassword').value;
+        
+        try {
+            const response = await fetch('/api/auth/login-no-jwt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showResult('noJwtResult', 'warning', result.message, {
+                    limitations: result.limitations,
+                    warning: result.warning
+                });
+            } else {
+                showResult('noJwtResult', 'error', result.message);
+            }
+        } catch (error) {
+            showResult('noJwtResult', 'error', 'Error: ' + error.message);
+        }
     }
 
-    async function testAuthSecure(e) {
+    async function loginWithJwt(e) {
         e.preventDefault();
-        const username = document.getElementById('secureUser').value;
-        const password = document.getElementById('securePass').value;
+        const email = document.getElementById('jwtEmail').value;
+        const password = document.getElementById('jwtPassword').value;
         
-        const result = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        }).then(r => r.json()).catch(e => ({ error: e.message }));
+        try {
+            const response = await fetch('/api/auth/login-with-jwt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                document.getElementById('tokenInput').value = result.token;
+                document.getElementById('protectedToken').value = result.token;
+                
+                showResult('jwtResult', 'success', result.message, {
+                    token: result.token.substring(0, 50) + '...',
+                    expiresAt: result.expiresAt,
+                    user: result.user,
+                    note: '✓ Token copied to inspector and protected endpoint sections'
+                });
+            } else {
+                showResult('jwtResult', 'error', result.message);
+            }
+        } catch (error) {
+            showResult('jwtResult', 'error', 'Error: ' + error.message);
+        }
+    }
+
+    function decodeToken() {
+        const token = document.getElementById('tokenInput').value.trim();
         
-        if (result.token) {
-            showResult('secureAuthResult', 'success', 'Secure login successful!', result);
-        } else {
-            showResult('secureAuthResult', 'error', 'Login failed', result);
+        if (!token) {
+            showResult('tokenInspectorResult', 'error', 'Please paste a JWT token');
+            return;
+        }
+
+        try {
+            const parts = token.split('.');
+            if (parts.length !== 3) {
+                showResult('tokenInspectorResult', 'error', 'Invalid JWT format');
+                return;
+            }
+
+            const header = JSON.parse(atob(parts[0]));
+            const payload = JSON.parse(atob(parts[1]));
+            
+            const exp = payload.exp ? new Date(payload.exp * 1000).toLocaleString() : 'Not set';
+            const iat = payload.iat ? new Date(payload.iat * 1000).toLocaleString() : 'Not set';
+            
+            showResult('tokenInspectorResult', 'info', 'Token Decoded Successfully', {
+                header: header,
+                payload: payload,
+                issuedAt: iat,
+                expiresAt: exp,
+                signature: parts[2].substring(0, 20) + '...'
+            });
+        } catch (error) {
+            showResult('tokenInspectorResult', 'error', 'Failed to decode token: ' + error.message);
+        }
+    }
+
+    async function validateToken() {
+        const token = document.getElementById('tokenInput').value.trim();
+        
+        if (!token) {
+            showResult('tokenInspectorResult', 'error', 'Please paste a JWT token');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/auth/profile', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showResult('tokenInspectorResult', 'success', '✓ Token is VALID', result);
+            } else {
+                showResult('tokenInspectorResult', 'error', '✗ Token is INVALID or EXPIRED', result);
+            }
+        } catch (error) {
+            showResult('tokenInspectorResult', 'error', 'Validation error: ' + error.message);
+        }
+    }
+
+    async function testProtectedEndpoint() {
+        const token = document.getElementById('protectedToken').value.trim();
+        
+        if (!token) {
+            showResult('protectedResult', 'error', 'Please enter a JWT token');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/auth/profile', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showResult('protectedResult', 'success', '✓ Access Granted!', {
+                    message: result.message,
+                    user: result.user,
+                    accessLevel: 'Protected resource accessed successfully'
+                });
+            } else {
+                showResult('protectedResult', 'error', '✗ Access Denied!', {
+                    message: result.message,
+                    reason: 'Invalid or expired token'
+                });
+            }
+        } catch (error) {
+            showResult('protectedResult', 'error', 'Error accessing protected endpoint: ' + error.message);
+        }
+    }
+
+    // ============== MFA FUNCTIONS ==============
+    
+    async function enableMfa(e) {
+        e.preventDefault();
+        const userId = document.getElementById('mfaUserId').value;
+        
+        try {
+            const response = await fetch('/api/auth/enable-mfa', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: parseInt(userId) })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                let html = `
+                    <div class="text-center">
+                        <h5>✓ QR Code Generated!</h5>
+                        <p><strong>Scan with Google Authenticator:</strong></p>
+                        <img src="${result.qrCodeDataUrl}" alt="QR Code" class="img-fluid mb-3" style="max-width: 250px; background: white; padding: 10px; border-radius: 8px;">
+                        <p><strong>Backup Secret:</strong></p>
+                        <code style="font-size: 14px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 4px;">${result.secret}</code>
+                        <hr>
+                        <ol class="text-start mt-3">
+                            ${result.instructions.map(i => '<li>' + i + '</li>').join('')}
+                        </ol>
+                    </div>
+                `;
+                document.getElementById('mfaEnableResult').innerHTML = html;
+                document.getElementById('mfaEnableResult').className = 'result-panel result-success mt-3';
+            } else {
+                showResult('mfaEnableResult', 'error', result.message);
+            }
+        } catch (error) {
+            showResult('mfaEnableResult', 'error', 'Error: ' + error.message);
+        }
+    }
+
+    async function confirmMfa(e) {
+        e.preventDefault();
+        const userId = document.getElementById('confirmUserId').value;
+        const code = document.getElementById('confirmCode').value;
+        
+        try {
+            const response = await fetch('/api/auth/confirm-mfa', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    userId: parseInt(userId),
+                    code: code 
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showResult('mfaConfirmResult', 'success', result.message, {
+                    mfaEnabled: result.mfaEnabled,
+                    nextStep: 'You can now use MFA login in Section 3'
+                });
+            } else {
+                showResult('mfaConfirmResult', 'error', result.message);
+            }
+        } catch (error) {
+            showResult('mfaConfirmResult', 'error', 'Error: ' + error.message);
+        }
+    }
+
+    async function loginWithMfa(e) {
+        e.preventDefault();
+        const email = document.getElementById('mfaLoginEmail').value;
+        const password = document.getElementById('mfaLoginPassword').value;
+        
+        try {
+            const response = await fetch('/api/auth/login-with-mfa', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const result = await response.json();
+            
+            if (result.requiresMfa) {
+                currentUserMfaToken = result.mfaToken;
+                showResult('mfaLoginStep1Result', 'warning', '✓ Password verified! Enter MFA code to continue', {
+                    message: result.message,
+                    nextStep: 'Enter 6-digit code from Google Authenticator →'
+                });
+            } else if (result.success) {
+                showResult('mfaLoginStep1Result', 'success', result.message, {
+                    note: 'MFA not enabled for this user',
+                    token: result.token ? result.token.substring(0, 50) + '...' : 'N/A'
+                });
+            } else {
+                showResult('mfaLoginStep1Result', 'error', result.message);
+            }
+        } catch (error) {
+            showResult('mfaLoginStep1Result', 'error', 'Error: ' + error.message);
+        }
+    }
+
+    async function verifyMfaLogin(e) {
+        e.preventDefault();
+        const code = document.getElementById('mfaLoginCode').value;
+        
+        if (!currentUserMfaToken) {
+            showResult('mfaLoginStep2Result', 'error', 'Please complete Step 1 first');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/auth/verify-mfa-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    mfaToken: currentUserMfaToken,
+                    code: code 
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showResult('mfaLoginStep2Result', 'success', '✓ MFA Login Complete!', {
+                    message: result.message,
+                    token: result.token.substring(0, 50) + '...',
+                    user: result.user,
+                    security: 'Two-factor authentication verified ✓'
+                });
+            } else {
+                showResult('mfaLoginStep2Result', 'error', result.message);
+            }
+        } catch (error) {
+            showResult('mfaLoginStep2Result', 'error', 'Error: ' + error.message);
         }
     }
 </script>
