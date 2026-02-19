@@ -20,12 +20,27 @@
                 <h4 class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Vulnerable</h4>
                 <p><strong>Problem:</strong> Raw SQL with string concatenation</p>
                 <div class="mb-3">
-                    <label class="form-label">Search Email (Try: <code>admin@test.com'' OR 1=1--</code>)</label>
+                    <label class="form-label">Search Email (Try: <code>admin@test.com' OR 1=1 --</code>)</label>
                     <input type="text" class="form-control" id="vulnEmail" placeholder="admin@test.com">
+                    <div class="form-text text-muted">
+                        <strong>SQL Injection Payloads (include the single quote!):</strong><br>
+                        • <code>admin@test.com' OR 1=1 --</code> - Break out and add always true condition<br>
+                        • <code>test@test.com' OR '1'='1</code> - Another always true condition<br>
+                        • <code>' OR 1=1 --</code> - Simple injection (starts with quote)<br>
+                        <span class="text-danger">⚠️ The single quote (') is crucial - it closes the SQL string!</span>
+                    </div>
                 </div>
-                <button class="btn btn-vulnerable w-100" onclick="testSQLVulnerable()">
+                <button class="btn btn-vulnerable w-100 mb-2" onclick="testSQLVulnerable()">
                     <i class="bi bi-bug-fill"></i> Test Vulnerable Query
                 </button>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-danger btn-sm" onclick="document.getElementById('vulnEmail').value = `admin@test.com' OR 1=1 --`; testSQLVulnerable()">
+                        <i class="bi bi-lightning-fill"></i> Quick Demo: Inject admin@test.com' OR 1=1 --
+                    </button>
+                    <button class="btn btn-outline-warning btn-sm" onclick="document.getElementById('vulnEmail').value = `' OR '1'='1`; testSQLVulnerable()">
+                        <i class="bi bi-lightning-fill"></i> Quick Demo: Inject ' OR '1'='1
+                    </button>
+                </div>
                 <div id="vulnSQLResult" class="result-panel"></div>
             </div>
         </div>
@@ -36,12 +51,54 @@
                 <p><strong>Solution:</strong> Parameterized queries with Entity Framework</p>
                 <div class="mb-3">
                     <label class="form-label">Search Email (Same input - safe)</label>
-                    <input type="text" class="form-control" id="secureEmail" placeholder="admin@test.com">
+                    <input type="text" class="form-control" id="secureEmail" placeholder="test@example.com">
+                    <div class="form-text text-success">
+                        Parameterized queries treat all input as literal text - SQL injection impossible!
+                    </div>
                 </div>
-                <button class="btn btn-secure w-100" onclick="testSQLSecure()">
+                <button class="btn btn-secure w-100 mb-2" onclick="testSQLSecure()">
                     <i class="bi bi-shield-fill"></i> Test Secure Query
                 </button>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-success btn-sm" onclick="document.getElementById('secureEmail').value = `admin@test.com' OR 1=1 --`; testSQLSecure()">
+                        <i class="bi bi-shield-fill"></i> Try Same Injection - Watch It Fail!
+                    </button>
+                    <button class="btn btn-outline-info btn-sm" onclick="document.getElementById('secureEmail').value = `victim@test.com`; testSQLSecure()">
+                        <i class="bi bi-person-fill"></i> Search for Real User
+                    </button>
+                </div>
                 <div id="secureSQLResult" class="result-panel"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="highlight-box highlight-danger">
+                <h5><i class="bi bi-exclamation-triangle-fill text-danger"></i> How SQL Injection Works</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-danger">Vulnerable Query Pattern:</h6>
+                        <code>SELECT * FROM Users WHERE Email = '<span class="text-primary">[USER_INPUT]</span>'</code>
+                        
+                        <h6 class="mt-3 text-danger">Normal Input:</h6>
+                        <strong>Input:</strong> <code>admin@test.com</code><br>
+                        <strong>SQL:</strong> <code>WHERE Email = '<span class="text-success">admin@test.com</span>'</code> ✅ Safe
+                        
+                        <h6 class="mt-3 text-danger">Malicious Input:</h6>
+                        <strong>Input:</strong> <code>admin@test.com' OR 1=1 --</code><br>
+                        <strong>SQL:</strong> <code>WHERE Email = '<span class="text-success">admin@test.com</span><span class="text-danger">' OR 1=1 --</span>'</code><br>
+                        <small class="text-muted">The quote closes the string, OR 1=1 is always true, -- comments out the rest</small>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-success">Secure Solution:</h6>
+                        <p>Parameterized queries treat ALL input as literal text:</p>
+                        <code>context.Users.Where(u => u.Email == userInput)</code>
+                        <p class="mt-2"><span class="text-success">✅</span> Input is never interpreted as SQL code</p>
+                        <p><span class="text-success">✅</span> Special characters are escaped automatically</p>
+                        <p><span class="text-success">✅</span> SQL injection is impossible</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -64,26 +121,86 @@
 @section Scripts {
 <script>
     async function testSQLVulnerable() {
-        const email = document.getElementById('vulnEmail').value;
-        const response = await fetch('/api/auth/vulnerable-login?email=' + encodeURIComponent(email));
-        const data = await response.json();
+        const email = document.getElementById('vulnEmail').value || "test@example.com";
         
-        if (data.users && data.users.length > 0) {
-            showResult('vulnSQLResult', 'error', 'SQL Injection successful! Retrieved ' + data.users.length + ' users', data.users.slice(0, 3));
-        } else {
-            showResult('vulnSQLResult', 'warning', 'Query executed but no results', data);
+        try {
+            // Use the correct vulnerable search endpoint
+            const response = await fetch(`/api/auth/search-vulnerable?query=${encodeURIComponent(email)}`);
+            const data = await response.json();
+            
+            if (data.success && data.results && data.results.length > 0) {
+                const displayedRecords = data.results.slice(0, 3); // Show first 3 results
+                showResult('vulnSQLResult', 'error', 
+                    `🚨 SQL Injection successful! Retrieved ${data.results.length} user records`, 
+                    {
+                        sqlExecuted: data.sqlExecuted,
+                        results: displayedRecords,
+                        totalRecords: data.results.length,
+                        displayNote: displayedRecords.length < data.results.length 
+                            ? `⚠️ Showing first ${displayedRecords.length} of ${data.results.length} records (UI limited for demo)`
+                            : `Showing all ${data.results.length} records`,
+                        warning: `⚠️ Exposed ${data.results.length} user records with password hashes!`
+                    });
+            } else if (data.success) {
+                showResult('vulnSQLResult', 'warning', 'Query executed but no results found', {
+                    sqlExecuted: data.sqlExecuted,
+                    message: 'Try a different injection payload'
+                });
+            } else {
+                showResult('vulnSQLResult', 'error', data.message || 'Query failed', data);
+            }
+        } catch (error) {
+            showResult('vulnSQLResult', 'error', `Error: ${error.message}`);
         }
     }
 
     async function testSQLSecure() {
-        const email = document.getElementById('secureEmail').value;
-        const response = await fetch('/api/auth/secure-login?email=' + encodeURIComponent(email));
-        const data = await response.json();
+        const email = document.getElementById('secureEmail').value || "test@example.com";
         
-        if (data.user) {
-            showResult('secureSQLResult', 'success', 'User found securely', data.user);
-        } else {
-            showResult('secureSQLResult', 'success', 'No user found - query parameters sanitized', data);
+        try {
+            // Use the secure search endpoint
+            const response = await fetch(`/api/auth/search-secure?query=${encodeURIComponent(email)}`);
+            const data = await response.json();
+            
+            if (data.success && data.results && data.results.length > 0) {
+                showResult('secureSQLResult', 'success', 
+                    `✅ Secure search completed. Found ${data.results.length} match(es)`, 
+                    {
+                        results: data.results,
+                        input: email,
+                        method: "Entity Framework LINQ",
+                        queryPattern: "context.Users.Where(u => u.Email.Contains(userInput))",
+                        security: "✅ Input sanitized with parameterized queries",
+                        explanation: "Entity Framework automatically escapes all special characters",
+                        protection: [
+                            "Single quotes (') are treated as literal text",
+                            "OR conditions are treated as part of the search string", 
+                            "SQL comments (--) are treated as literal text",
+                            "No SQL code injection is possible"
+                        ]
+                    });
+            } else if (data.success) {
+                showResult('secureSQLResult', 'success', '🛡️ No matching users found - Search safely blocked injection', {
+                    input: email,
+                    method: "Entity Framework LINQ", 
+                    queryPattern: "context.Users.Where(u => u.Email.Contains(userInput))",
+                    security: '✅ Query parameters sanitized - SQL injection prevented',
+                    inputTreatedAs: `Searching for literal text: "${email}"`,
+                    explanation: data.sqlInjectionAttempted 
+                        ? "🔒 SQL injection payload was safely neutralized - treated as literal search text"
+                        : "🔍 Normal search executed safely with parameterized query",
+                    whySecure: [
+                        "User input never directly concatenated into SQL",
+                        "Entity Framework uses parameterized queries internally", 
+                        "Special characters automatically escaped",
+                        "SQL structure cannot be modified by user input"
+                    ]
+                });
+            } else {
+                showResult('secureSQLResult', 'warning', data.message || 'Search failed', data);
+            }
+        } catch (error) {
+            showResult('secureSQLResult', 'error', `Error: ${error.message}`);
         }
     }
 </script>

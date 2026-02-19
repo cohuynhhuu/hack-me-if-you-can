@@ -382,7 +382,8 @@ public class AuthController : ControllerBase
         try
         {
             // DANGER: String concatenation creates SQL Injection vulnerability!
-            var sql = $"SELECT Id, Email, Password FROM Users WHERE Email LIKE '%{query}%'";
+            // Using = instead of LIKE to make injection clearer
+            var sql = $"SELECT Id, Email, PasswordHash FROM Users WHERE Email = '{query}'";
             
             _logger.LogWarning("Executing VULNERABLE SQL: {Sql}", sql);
 
@@ -402,7 +403,7 @@ public class AuthController : ControllerBase
                 {
                     id = reader.GetInt32(0),
                     email = reader.GetString(1),
-                    password = reader.IsDBNull(2) ? "N/A" : reader.GetString(2)
+                    passwordHash = reader.IsDBNull(2) ? "N/A" : reader.GetString(2).Substring(0, 20) + "..."
                 });
             }
 
@@ -412,7 +413,8 @@ public class AuthController : ControllerBase
                 message = "Search completed (VULNERABLE method)",
                 warning = "⚠️ This endpoint is vulnerable to SQL Injection!",
                 results = results,
-                sqlExecuted = sql
+                sqlExecuted = sql,
+                totalRecords = results.Count
             });
         }
         catch (Exception ex)
@@ -442,6 +444,11 @@ public class AuthController : ControllerBase
             return BadRequest(new { success = false, message = "Query parameter is required" });
         }
 
+        // Detect potential SQL injection attempts for educational purposes
+        bool sqlInjectionAttempted = query.Contains("'") || query.ToLower().Contains("or ") || 
+                                   query.Contains("--") || query.ToLower().Contains("union") ||
+                                   query.ToLower().Contains("drop") || query.ToLower().Contains("delete");
+
         try
         {
             // SAFE: Entity Framework uses parameterized queries
@@ -451,16 +458,28 @@ public class AuthController : ControllerBase
                 {
                     u.Id,
                     u.Email,
-                    Password = u.Password ?? "N/A"
+                    // Don't expose password in secure demo
+                    HasPassword = !string.IsNullOrEmpty(u.PasswordHash)
                 })
                 .ToListAsync();
+
+            _logger.LogInformation("Secure search for '{Query}' returned {Count} results", query, users.Count);
 
             return Ok(new
             {
                 success = true,
                 message = "Search completed (SECURE method)",
                 info = "✅ Entity Framework LINQ prevents SQL Injection",
-                results = users
+                method = "Parameterized Query with Entity Framework",
+                queryPattern = "context.Users.Where(u => u.Email.Contains(userInput))",
+                sqlInjectionAttempted = sqlInjectionAttempted,
+                protection = sqlInjectionAttempted ? 
+                    "🛡️ SQL injection payload detected but safely neutralized by Entity Framework" :
+                    "🔍 Normal search executed with parameterized query",
+                results = users,
+                educationalNote = sqlInjectionAttempted ?
+                    "The malicious SQL characters in your input were treated as literal text, not SQL code. Entity Framework automatically parameterizes all user input." :
+                    "Entity Framework converted your search into a safe parameterized query that prevents SQL injection."
             });
         }
         catch (Exception ex)
