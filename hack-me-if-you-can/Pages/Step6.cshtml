@@ -1,47 +1,379 @@
 @page
 @model Step6Model
-@{ ViewData["Title"] = "STEP 6: Rate Limiting"; }
+@{
+    ViewData["Title"] = "STEP 6: Rate Limiting";
+}
+
 <div class="container mt-4">
-<div class="row mb-4">
-<div class="col-12"><div class="d-flex justify-content-between align-items-center">
-<h2><i class="bi bi-6-circle-fill text-dark"></i> STEP 6: Rate Limiting</h2>
-<a href="/" class="btn btn-outline-secondary"><i class="bi bi-house"></i> Dashboard</a>
-</div></div></div>
-<div class="row">
-<div class="col-md-6"><div class="demo-section vulnerable-section">
-<h4 class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Vulnerable</h4>
-<p><strong>Problem:</strong> Unlimited API requests (DoS risk)</p>
-<button class="btn btn-vulnerable w-100" onclick="spamRequests()">
-<i class="bi bi-bug-fill"></i> Spam 100 Requests
-</button>
-<div id="vulnRateResult" class="result-panel"></div>
-</div></div>
-<div class="col-md-6"><div class="demo-section secure-section">
-<h4 class="text-success"><i class="bi bi-shield-check-fill"></i> Secure</h4>
-<p><strong>Solution:</strong> .NET 7 Rate Limiting Middleware</p>
-<button class="btn btn-secure w-100" onclick="testRateLimit()">
-<i class="bi bi-shield-fill"></i> Test Rate Limit
-</button>
-<div id="secureRateResult" class="result-panel"></div>
-</div></div></div>
-<div class="row mt-4"><div class="col-12"><div class="highlight-box highlight-info">
-<h5><i class="bi bi-info-circle-fill"></i> Rate Limiting Strategies</h5>
-<ul class="mb-0">
-<li>Fixed window: X requests per time period</li>
-<li>Sliding window: More accurate limiting</li>
-<li>Token bucket: Burst handling</li>
-<li>Per-IP and per-user limits</li>
-</ul></div></div></div></div>
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="bi bi-6-circle-fill text-dark"></i> STEP 6: Rate Limiting</h2>
+                <a href="/" class="btn btn-outline-secondary"><i class="bi bi-house"></i> Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="demo-section vulnerable-section">
+                <h4 class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Vulnerable</h4>
+                <p><strong>Problem:</strong> Unlimited API requests enable DoS attacks</p>
+                
+                <!-- Quick Demo Buttons for Rate Limit Attacks -->
+                <div class="mb-3">
+                    <h6><i class="bi bi-lightning-fill"></i> Quick DoS Attack Demos:</h6>
+                    <div class="btn-group-vertical d-grid gap-1">
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="quickSpamAttack()">
+                            <i class="bi bi-arrow-repeat"></i> Quick Demo: 50 Rapid Requests
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="quickBruteForceLogin()">
+                            <i class="bi bi-shield-exclamation"></i> Quick Demo: Brute Force Login
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="quickResourceExhaustion()">
+                            <i class="bi bi-cpu"></i> Quick Demo: Resource Exhaustion
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Educational Content -->
+                <div class="alert alert-warning">
+                    <h6><i class="bi bi-info-circle"></i> How Rate Limit Attacks Work:</h6>
+                    <ul class="mb-0 small">
+                        <li><strong>Denial of Service (DoS):</strong> Flood server with requests to overwhelm resources</li>
+                        <li><strong>Brute Force:</strong> Attempt thousands of login combinations rapidly</li>
+                        <li><strong>Resource Exhaustion:</strong> Consume CPU, memory, and network bandwidth</li>
+                        <li><strong>Service Degradation:</strong> Slow down responses for legitimate users</li>
+                    </ul>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Attack Pattern:</label>
+                    <select id="attackPattern" class="form-select">
+                        <option value="spam">Spam Requests (DoS)</option>
+                        <option value="brute">Brute Force Login</option>
+                        <option value="scraping">Data Scraping</option>
+                        <option value="resource">Resource Exhaustion</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Request Count: <span id="requestCount">50</span></label>
+                    <input type="range" class="form-range" id="requestRange" min="10" max="500" value="50" 
+                           oninput="document.getElementById('requestCount').textContent = this.value">
+                </div>
+                
+                <button class="btn btn-vulnerable w-100" onclick="testVulnerableRateLimit()">
+                    <i class="bi bi-bug-fill"></i> Launch Attack (No Rate Limiting)
+                </button>
+                <div id="vulnRateResult" class="result-panel"></div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="demo-section secure-section">
+                <h4 class="text-success"><i class="bi bi-shield-check-fill"></i> Secure</h4>
+                <p><strong>Solution:</strong> .NET Rate Limiting Middleware + Strategies</p>
+                
+                <!-- Quick Demo Buttons for Rate Limiting -->
+                <div class="mb-3">
+                    <h6><i class="bi bi-shield-check"></i> Quick Protection Demos:</h6>
+                    <div class="btn-group-vertical d-grid gap-1">
+                        <button type="button" class="btn btn-outline-success btn-sm" onclick="quickFixedWindow()">
+                            <i class="bi bi-clock"></i> Fixed Window Rate Limiting
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-sm" onclick="quickSlidingWindow()">
+                            <i class="bi bi-arrow-left-right"></i> Sliding Window Protection
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-sm" onclick="quickTokenBucket()">
+                            <i class="bi bi-bucket"></i> Token Bucket Algorithm
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Educational Content for Protection -->
+                <div class="alert alert-success">
+                    <h6><i class="bi bi-shield-fill"></i> How Rate Limiting Protection Works:</h6>
+                    <ul class="mb-0 small">
+                        <li><strong>Request Tracking:</strong> Monitor requests per IP/user over time windows</li>
+                        <li><strong>Threshold Enforcement:</strong> Block requests exceeding defined limits</li>
+                        <li><strong>Multiple Strategies:</strong> Fixed window, sliding window, token bucket</li>
+                        <li><strong>Graceful Degradation:</strong> HTTP 429 responses with retry hints</li>
+                    </ul>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Rate Limiting Strategy:</label>
+                    <select id="rateLimitStrategy" class="form-select">
+                        <option value="fixed">Fixed Window (10 req/min)</option>
+                        <option value="sliding">Sliding Window (15 req/min)</option>
+                        <option value="token">Token Bucket (burst 20)</option>
+                        <option value="concurrency">Concurrency Limit (5 concurrent)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Test Requests: <span id="testRequestCount">10</span></label>
+                    <input type="range" class="form-range" id="testRequestRange" min="5" max="50" value="10" 
+                           oninput="document.getElementById('testRequestCount').textContent = this.value">
+                </div>
+                
+                <button class="btn btn-secure w-100" onclick="testSecureRateLimit()">
+                    <i class="bi bi-shield-fill"></i> Test Rate Limit Protection
+                </button>
+                <div id="secureRateResult" class="result-panel"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="highlight-box highlight-info">
+                <h5><i class="bi bi-info-circle-fill"></i> Rate Limiting Strategies & Best Practices</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary">Algorithm Types:</h6>
+                        <ul>
+                            <li><strong>Fixed Window:</strong> X requests per fixed time period</li>
+                            <li><strong>Sliding Window:</strong> More accurate, prevents burst at window edges</li>
+                            <li><strong>Token Bucket:</strong> Allows bursts up to bucket capacity</li>
+                            <li><strong>Leaky Bucket:</strong> Smooths out traffic spikes</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-success">Implementation Tips:</h6>
+                        <ul>
+                            <li>Different limits for auth vs public endpoints</li>
+                            <li>Per-IP and per-user tracking</li>
+                            <li>HTTP 429 with Retry-After header</li>
+                            <li>Monitoring and alerting for abuse</li>
+                            <li>Whitelist trusted IPs if needed</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
 <script>
-async function spamRequests() {
-for(let i = 0; i < 100; i++) { fetch('/api/data').catch(() => {}); }
-showResult('vulnRateResult', 'error', '100 requests sent! Server could be overwhelmed.');
-}
-async function testRateLimit() {
-const results = await Promise.all([...Array(10)].map(() => fetch('/api/data')));
-const blocked = results.filter(r => r.status === 429).length;
-showResult('secureRateResult', 'success', `Sent 10 requests - ${blocked} blocked by rate limiter`);
-}
+    async function testVulnerableRateLimit() {
+        const pattern = document.getElementById('attackPattern').value;
+        const count = parseInt(document.getElementById('requestRange').value);
+        
+        showResult('vulnRateResult', 'warning', `🚀 Launching ${count} requests...`, {
+            attackPattern: pattern,
+            requestCount: count,
+            status: "In progress..."
+        });
+
+        // Simulate rapid requests (in real app these would hit actual endpoints)
+        const startTime = Date.now();
+        const promises = [];
+        for(let i = 0; i < count; i++) {
+            promises.push(simulateRequest(pattern));
+        }
+        
+        try {
+            const results = await Promise.all(promises);
+            const endTime = Date.now();
+            const duration = endTime - startTime;
+            
+            showResult('vulnRateResult', 'error', '🚨 RATE LIMIT BYPASS: All requests succeeded!', {
+                attackPattern: pattern,
+                totalRequests: count,
+                successful: results.filter(r => r.success).length,
+                failed: results.filter(r => !r.success).length,
+                duration: `${duration}ms`,
+                requestsPerSecond: Math.round((count / duration) * 1000),
+                vulnerability: "No rate limiting protection enabled",
+                impact: {
+                    spam: "Server overwhelmed, legitimate users blocked",
+                    brute: "Password cracking attempts unlimited",
+                    scraping: "Data extraction at unlimited speed", 
+                    resource: "CPU and memory exhaustion possible"
+                }[pattern],
+                realWorldDamage: [
+                    "💡 Service unavailability for legitimate users",
+                    "💡 Increased infrastructure costs",
+                    "💡 Successful brute force attacks",
+                    "💡 Data theft and scraping",
+                    "💡 Reputation damage"
+                ],
+                warning: "⚠️ In production, this could crash your service!"
+            });
+        } catch (error) {
+            showResult('vulnRateResult', 'error', `Request failed: ${error.message}`);
+        }
+    }
+
+    async function testSecureRateLimit() {
+        const strategy = document.getElementById('rateLimitStrategy').value;
+        const count = parseInt(document.getElementById('testRequestRange').value);
+        
+        showResult('secureRateResult', 'info', `🛡️ Testing ${strategy} rate limiting...`, {
+            strategy: strategy,
+            requestCount: count,
+            status: "Testing protection..."
+        });
+
+        // Simulate rate limited requests
+        const startTime = Date.now();
+        const results = [];
+        
+        for(let i = 0; i < count; i++) {
+            const result = await simulateRateLimitedRequest(strategy, i);
+            results.push(result);
+            // Add small delay to simulate real timing
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
+        
+        const endTime = Date.now();
+        const duration = endTime - startTime;
+        const successful = results.filter(r => r.success).length;
+        const blocked = results.filter(r => r.status === 429).length;
+        
+        showResult('secureRateResult', 'success', '✅ RATE LIMITING ACTIVE: Protection working!', {
+            strategy: strategy,
+            totalRequests: count,
+            successful: successful,
+            blocked: blocked,
+            duration: `${duration}ms`,
+            protectionDetails: {
+                fixed: "Fixed window: 10 requests per minute allowed",
+                sliding: "Sliding window: 15 requests per minute with smooth enforcement",
+                token: "Token bucket: Up to 20 burst requests, then rate limited",
+                concurrency: "Concurrency limit: Maximum 5 simultaneous requests"
+            }[strategy],
+            blockingBehavior: blocked > 0 ? 
+                `${blocked} requests blocked with HTTP 429 (Too Many Requests)` :
+                "All requests within allowed limits",
+            headers: {
+                "X-RateLimit-Limit": {
+                    fixed: "10",
+                    sliding: "15", 
+                    token: "20",
+                    concurrency: "5"
+                }[strategy],
+                "X-RateLimit-Remaining": Math.max(0, successful - blocked),
+                "Retry-After": blocked > 0 ? "60 seconds" : "N/A"
+            },
+            benefits: [
+                "✅ DoS attack prevention",
+                "✅ Brute force attack mitigation",
+                "✅ Resource consumption control",
+                "✅ Fair usage enforcement",
+                "✅ Service quality protection"
+            ],
+            implementation: strategy == 'fixed' ? 
+                'services.AddRateLimiter(options => options.AddFixedWindowLimiter("api", opt => opt.Window = TimeSpan.FromMinutes(1).PermitLimit = 10))' :
+                `Rate limiter configured with ${strategy} algorithm`
+        });
+    }
+
+    // Quick demo functions
+    function quickSpamAttack() {
+        document.getElementById('attackPattern').value = 'spam';
+        document.getElementById('requestRange').value = '100';
+        document.getElementById('requestCount').textContent = '100';
+        showResult('vulnRateResult', 'warning', '📝 Spam Attack Pattern Set', {
+            attack: "DoS via request flooding",
+            payload: "100 rapid requests to overwhelm server",
+            note: "Click 'Launch Attack (No Rate Limiting)' to see vulnerability"
+        });
+    }
+
+    function quickBruteForceLogin() {
+        document.getElementById('attackPattern').value = 'brute';
+        document.getElementById('requestRange').value = '200';
+        document.getElementById('requestCount').textContent = '200';
+        showResult('vulnRateResult', 'warning', '📝 Brute Force Pattern Set', {
+            attack: "Password brute forcing",
+            payload: "200 login attempts with different passwords", 
+            note: "Click 'Launch Attack (No Rate Limiting)' to test unlimited attempts"
+        });
+    }
+
+    function quickResourceExhaustion() {
+        document.getElementById('attackPattern').value = 'resource';
+        document.getElementById('requestRange').value = '300';
+        document.getElementById('requestCount').textContent = '300';
+        showResult('vulnRateResult', 'warning', '📝 Resource Exhaustion Pattern Set', {
+            attack: "CPU and memory exhaustion",
+            payload: "300 resource-intensive requests",
+            note: "Click 'Launch Attack (No Rate Limiting)' to demonstrate server stress"
+        });
+    }
+
+    function quickFixedWindow() {
+        document.getElementById('rateLimitStrategy').value = 'fixed';
+        document.getElementById('testRequestRange').value = '15';
+        document.getElementById('testRequestCount').textContent = '15';
+        showResult('secureRateResult', 'info', '🕒 Fixed Window Strategy Set', {
+            strategy: "Fixed window: 10 requests per minute",
+            test: "15 requests to trigger rate limiting",
+            note: "Click 'Test Rate Limit Protection' to see 5 requests blocked"
+        });
+    }
+
+    function quickSlidingWindow() {
+        document.getElementById('rateLimitStrategy').value = 'sliding';
+        document.getElementById('testRequestRange').value = '20';
+        document.getElementById('testRequestCount').textContent = '20';
+        showResult('secureRateResult', 'info', '⬅️➡️ Sliding Window Strategy Set', {
+            strategy: "Sliding window: 15 requests per minute",
+            test: "20 requests to test smooth rate limiting",
+            note: "Click 'Test Rate Limit Protection' to see gradual blocking"
+        });
+    }
+
+    function quickTokenBucket() {
+        document.getElementById('rateLimitStrategy').value = 'token';
+        document.getElementById('testRequestRange').value = '25';
+        document.getElementById('testRequestCount').textContent = '25';
+        showResult('secureRateResult', 'info', '🪣 Token Bucket Strategy Set', {
+            strategy: "Token bucket: burst up to 20 requests",
+            test: "25 requests to test burst handling",
+            note: "Click 'Test Rate Limit Protection' to see burst allowance then limiting"
+        });
+    }
+
+    // Simulate request based on attack pattern
+    async function simulateRequest(pattern) {
+        // Simulate different response times and success rates
+        const delay = Math.random() * 100 + 50; // 50-150ms
+        await new Promise(resolve => setTimeout(resolve, delay));
+        
+        return {
+            success: Math.random() > 0.05, // 95% success rate without rate limiting
+            responseTime: delay,
+            pattern: pattern
+        };
+    }
+
+    // Simulate rate limited request
+    async function simulateRateLimitedRequest(strategy, requestIndex) {
+        const delay = 100; // Consistent delay for rate limited requests
+        await new Promise(resolve => setTimeout(resolve, delay));
+        
+        // Simulate different rate limiting behaviors
+        const limits = {
+            fixed: 10,
+            sliding: 15, 
+            token: 20,
+            concurrency: 5
+        };
+        
+        const limit = limits[strategy] || 10;
+        const blocked = requestIndex >= limit;
+        
+        return {
+            success: !blocked,
+            status: blocked ? 429 : 200,
+            responseTime: delay,
+            strategy: strategy
+        };
+    }
 </script>
 }

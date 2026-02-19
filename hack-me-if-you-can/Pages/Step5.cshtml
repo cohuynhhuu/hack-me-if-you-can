@@ -1,36 +1,351 @@
 @page
 @model Step5Model
-@{ ViewData["Title"] = "STEP 5: Secrets Management"; }
+@{
+    ViewData["Title"] = "STEP 5: Secrets Management";
+}
+
 <div class="container mt-4">
-<div class="row mb-4">
-<div class="col-12"><div class="d-flex justify-content-between align-items-center">
-<h2><i class="bi bi-5-circle-fill text-secondary"></i> STEP 5: Secrets Management</h2>
-<a href="/" class="btn btn-outline-secondary"><i class="bi bi-house"></i> Dashboard</a>
-</div></div></div>
-<div class="row">
-<div class="col-md-6"><div class="demo-section vulnerable-section">
-<h4 class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Vulnerable</h4>
-<p><strong>Problem:</strong> Hardcoded API keys in source code</p>
-<div class="code-block mb-3">const apiKey = "sk_live_abc123xyz789";</div>
-<button class="btn btn-vulnerable w-100" onclick="showResult('vulnSecretResult', 'error', 'API key exposed in source code!')">
-<i class="bi bi-bug-fill"></i> Show Hardcoded Secret
-</button>
-<div id="vulnSecretResult" class="result-panel"></div>
-</div></div>
-<div class="col-md-6"><div class="demo-section secure-section">
-<h4 class="text-success"><i class="bi bi-shield-check-fill"></i> Secure</h4>
-<p><strong>Solution:</strong> Configuration files + User Secrets + Environment Variables</p>
-<div class="code-block mb-3">var apiKey = config["ApiKey"];</div>
-<button class="btn btn-secure w-100" onclick="showResult('secureSecretResult', 'success', 'Secrets loaded from secure configuration')">
-<i class="bi bi-shield-fill"></i> Load from Config
-</button>
-<div id="secureSecretResult" class="result-panel"></div>
-</div></div></div>
-<div class="row mt-4"><div class="col-12"><div class="highlight-box highlight-info">
-<h5><i class="bi bi-info-circle-fill"></i> Secret Management</h5>
-<ul class="mb-0">
-<li>Use appsettings.json (for non-sensitive config)</li>
-<li>User Secrets for local development</li>
-<li>Azure Key Vault for production</li>
-<li>Never commit secrets to source control</li>
-</ul></div></div></div></div>
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="bi bi-5-circle-fill text-secondary"></i> STEP 5: Secrets Management</h2>
+                <a href="/" class="btn btn-outline-secondary"><i class="bi bi-house"></i> Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="demo-section vulnerable-section">
+                <h4 class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Vulnerable</h4>
+                <p><strong>Problem:</strong> Hardcoded secrets in source code</p>
+                
+                <!-- Quick Demo Buttons for Secret Exposure -->
+                <div class="mb-3">
+                    <h6><i class="bi bi-lightning-fill"></i> Quick Secret Exposure Demos:</h6>
+                    <div class="btn-group-vertical d-grid gap-1">
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="quickHardcodedApiKey()">
+                            <i class="bi bi-key"></i> Quick Demo: Hardcoded API Key
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="quickDatabasePassword()">
+                            <i class="bi bi-database-lock"></i> Quick Demo: DB Password in Code
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="quickJWTSecret()">
+                            <i class="bi bi-shield-exclamation"></i> Quick Demo: JWT Secret Exposed
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Educational Content -->
+                <div class="alert alert-warning">
+                    <h6><i class="bi bi-info-circle"></i> Why Hardcoded Secrets Are Dangerous:</h6>
+                    <ul class="mb-0 small">
+                        <li><strong>Source Control Exposure:</strong> Secrets visible to anyone with repository access</li>
+                        <li><strong>Version History:</strong> Secrets remain in Git history even after removal</li>
+                        <li><strong>No Rotation:</strong> Difficult to change secrets without code deployment</li>
+                        <li><strong>Environment Issues:</strong> Same secrets used across dev/staging/prod</li>
+                    </ul>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Test Secret Type:</label>
+                    <select id="vulnSecretType" class="form-select">
+                        <option value="apikey">API Key (Stripe, PayPal, etc.)</option>
+                        <option value="database">Database Connection String</option>
+                        <option value="jwt">JWT Signing Secret</option>
+                        <option value="oauth">OAuth Client Secret</option>
+                    </select>
+                </div>
+                
+                <div class="code-block mb-3" id="vulnCodeExample">
+                    <code>const apiKey = "sk_live_abc123xyz789_VERY_SECRET_KEY";</code>
+                </div>
+                
+                <button class="btn btn-vulnerable w-100" onclick="testVulnerableSecrets()">
+                    <i class="bi bi-bug-fill"></i> Show Hardcoded Secret Risks
+                </button>
+                <div id="vulnSecretResult" class="result-panel"></div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="demo-section secure-section">
+                <h4 class="text-success"><i class="bi bi-shield-check-fill"></i> Secure</h4>
+                <p><strong>Solution:</strong> External configuration + secret management</p>
+                
+                <!-- Quick Demo Buttons for Secure Secrets -->
+                <div class="mb-3">
+                    <h6><i class="bi bi-shield-check"></i> Quick Secure Management Demos:</h6>
+                    <div class="btn-group-vertical d-grid gap-1">
+                        <button type="button" class="btn btn-outline-success btn-sm" onclick="quickEnvironmentVariable()">
+                            <i class="bi bi-gear"></i> Environment Variable Demo
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-sm" onclick="quickUserSecrets()">
+                            <i class="bi bi-person-lock"></i> User Secrets Demo
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-sm" onclick="quickAzureKeyVault()">
+                            <i class="bi bi-cloud-arrow-up"></i> Azure Key Vault Demo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Educational Content for Protection -->
+                <div class="alert alert-success">
+                    <h6><i class="bi bi-shield-fill"></i> How Secure Secret Management Works:</h6>
+                    <ul class="mb-0 small">
+                        <li><strong>External Storage:</strong> Secrets stored outside source code</li>
+                        <li><strong>Environment Variables:</strong> OS-level configuration injection</li>
+                        <li><strong>User Secrets:</strong> Local development secret storage</li>
+                        <li><strong>Key Vaults:</strong> Production-grade secret management with encryption</li>
+                        <li><strong>Access Control:</strong> Role-based access to specific secrets</li>
+                    </ul>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Secure Configuration Method:</label>
+                    <select id="secureSecretMethod" class="form-select">
+                        <option value="env">Environment Variables</option>
+                        <option value="usersecrets">User Secrets (Development)</option>
+                        <option value="keyvault">Azure Key Vault</option>
+                        <option value="config">Configuration Files</option>
+                    </select>
+                </div>
+
+                <div class="code-block mb-3" id="secureCodeExample">
+                    <code>var apiKey = Environment.GetEnvironmentVariable("API_KEY");</code>
+                </div>
+                
+                <button class="btn btn-secure w-100" onclick="testSecureSecrets()">
+                    <i class="bi bi-shield-fill"></i> Test Secure Secret Loading
+                </button>
+                <div id="secureSecretResult" class="result-panel"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="highlight-box highlight-info">
+                <h5><i class="bi bi-info-circle-fill"></i> Secret Management Best Practices</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-warning">❌ Never Do:</h6>
+                        <ul>
+                            <li>Hardcode secrets in source files</li>
+                            <li>Commit configuration with secrets</li>
+                            <li>Use same secrets across environments</li>
+                            <li>Store secrets in client-side code</li>
+                            <li>Share secrets via email/chat</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-success">✅ Best Practices:</h6>
+                        <ul>
+                            <li>Use environment variables for deployment</li>
+                            <li>User Secrets for local development</li>
+                            <li>Azure Key Vault for production</li>
+                            <li>Rotate secrets regularly</li>
+                            <li>Monitor secret access and usage</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function testVulnerableSecrets() {
+        const secretType = document.getElementById('vulnSecretType').value;
+        const secretExamples = {
+            apikey: "sk_live_abc123xyz789_VERY_SECRET_KEY",
+            database: "Server=prod.db.com;Database=UserData;User=admin;Password=SuperSecret123!;",
+            jwt: "MyJWTSecretKey_NeverChangeThis_123456789",
+            oauth: "oauth_secret_abc123xyz789_client_credentials"
+        };
+
+        showResult('vulnSecretResult', 'error', '🚨 SECRETS EXPOSED: Hardcoded secrets vulnerable!', {
+            secretType: secretType,
+            exposedSecret: secretExamples[secretType],
+            vulnerabilities: [
+                "🔓 Visible in source code to all developers",
+                "🔓 Stored permanently in Git version history", 
+                "🔓 Deployed to multiple environments unchanged",
+                "🔓 No rotation capability without code changes",
+                "🔓 Accessible via code repository access"
+            ],
+            discoveryMethods: [
+                "Git history scanning",
+                "Static code analysis",
+                "Source code search",
+                "Binary decompilation",
+                "Environment variable dumps"
+            ],
+            realWorldImpact: {
+                apikey: "Unauthorized API usage, financial fraud, data theft",
+                database: "Complete database access, data exfiltration",
+                jwt: "Token forgery, session hijacking, privilege escalation", 
+                oauth: "Account takeover, unauthorized API access"
+            }[secretType],
+            prevention: "Move all secrets to external configuration immediately!"
+        });
+    }
+
+    function testSecureSecrets() {
+        const method = document.getElementById('secureSecretMethod').value;
+        const implementations = {
+            env: {
+                code: 'var apiKey = Environment.GetEnvironmentVariable("API_KEY");',
+                description: "Environment Variable Configuration",
+                benefits: ["OS-level isolation", "Different per environment", "Runtime injection"]
+            },
+            usersecrets: {
+                code: 'var apiKey = configuration["UserSecrets:ApiKey"];',
+                description: "User Secrets Manager (.NET)",
+                benefits: ["Local development safety", "Encrypted storage", "Per-user isolation"]
+            },
+            keyvault: {
+                code: 'var apiKey = await keyVaultClient.GetSecretAsync("api-key");',
+                description: "Azure Key Vault Integration", 
+                benefits: ["Enterprise encryption", "Access logging", "Automatic rotation"]
+            },
+            config: {
+                code: 'var apiKey = configuration.GetConnectionString("ApiKey");',
+                description: "Configuration Files",
+                benefits: ["Environment-specific", "Deployment flexibility", "Easy management"]
+            }
+        };
+
+        showResult('secureSecretResult', 'success', '✅ SECRETS PROTECTED: Secure configuration loading!', {
+            method: implementations[method].description,
+            implementation: implementations[method].code,
+            benefits: implementations[method].benefits,
+            securityFeatures: [
+                "✅ Secrets stored outside source code",
+                "✅ Environment-specific configuration",
+                "✅ Access control and permissions", 
+                "✅ Secret rotation capabilities",
+                "✅ Audit logging for access tracking"
+            ],
+            setupSteps: {
+                env: [
+                    "Set environment variable: API_KEY=your_secret",
+                    "Access via Environment.GetEnvironmentVariable()",
+                    "Configure in deployment pipeline"
+                ],
+                usersecrets: [
+                    "Run: dotnet user-secrets init",
+                    "Set: dotnet user-secrets set 'ApiKey' 'your_secret'",
+                    "Access via IConfiguration interface"
+                ],
+                keyvault: [
+                    "Create Azure Key Vault resource",
+                    "Configure managed identity access",
+                    "Store secrets with proper access policies"
+                ],
+                config: [
+                    "Use appsettings.{environment}.json",
+                    "Override with environment variables",
+                    "Never commit sensitive configurations"
+                ]
+            }[method],
+            production: method === 'keyvault' ? 
+                "✅ Production-ready with enterprise features" : 
+                method === 'env' ? 
+                "✅ Production-suitable with proper deployment" :
+                method === 'usersecrets' ?
+                "⚠️ Development only - switch to Key Vault for production" :
+                "⚠️ Ensure sensitive configs are not committed"
+        });
+    }
+
+    // Quick demo functions
+    function quickHardcodedApiKey() {
+        document.getElementById('vulnSecretType').value = 'apikey';
+        document.getElementById('vulnCodeExample').innerHTML = 
+            '<code>const stripeKey = "sk_live_51ABC123...xyz789_REAL_PRODUCTION_KEY";</code>';
+        showResult('vulnSecretResult', 'warning', '📝 Hardcoded API Key Example Set', {
+            example: "Production Stripe API key hardcoded in JavaScript",
+            risk: "Anyone with code access can process payments using your account",
+            note: "Click 'Show Hardcoded Secret Risks' to see full vulnerability analysis"
+        });
+    }
+
+    function quickDatabasePassword() {
+        document.getElementById('vulnSecretType').value = 'database';
+        document.getElementById('vulnCodeExample').innerHTML = 
+            '<code>string conn = "Server=prod.db;User=admin;Password=SuperSecret123!";</code>';
+        showResult('vulnSecretResult', 'warning', '📝 Database Credentials Example Set', {
+            example: "Production database password in connection string",
+            risk: "Full database access with admin privileges exposed",
+            note: "Click 'Show Hardcoded Secret Risks' to see security implications"
+        });
+    }
+
+    function quickJWTSecret() {
+        document.getElementById('vulnSecretType').value = 'jwt';
+        document.getElementById('vulnCodeExample').innerHTML = 
+            '<code>const jwtSecret = "my-super-secret-jwt-key-never-change";</code>';
+        showResult('vulnSecretResult', 'warning', '📝 JWT Secret Example Set', {
+            example: "JWT signing secret hardcoded in application",
+            risk: "Attackers can forge tokens and impersonate any user",
+            note: "Click 'Show Hardcoded Secret Risks' to learn about token forgery"
+        });
+    }
+
+    function quickEnvironmentVariable() {
+        document.getElementById('secureSecretMethod').value = 'env';
+        document.getElementById('secureCodeExample').innerHTML = 
+            '<code>var secret = Environment.GetEnvironmentVariable("API_KEY");</code>';
+        showResult('secureSecretResult', 'info', '🌍 Environment Variable Method Set', {
+            method: "Reading secrets from OS environment variables",
+            security: "Secrets injected at runtime, not stored in code",
+            note: "Click 'Test Secure Secret Loading' to see implementation details"
+        });
+    }
+
+    function quickUserSecrets() {
+        document.getElementById('secureSecretMethod').value = 'usersecrets';
+        document.getElementById('secureCodeExample').innerHTML = 
+            '<code>var secret = _config["UserSecrets:ApiKey"];</code>';
+        showResult('secureSecretResult', 'info', '👤 User Secrets Method Set', {
+            method: "Using .NET User Secrets for local development",
+            security: "Encrypted storage outside project directory",
+            note: "Click 'Test Secure Secret Loading' for setup instructions"
+        });
+    }
+
+    function quickAzureKeyVault() {
+        document.getElementById('secureSecretMethod').value = 'keyvault';
+        document.getElementById('secureCodeExample').innerHTML = 
+            '<code>var secret = await keyVault.GetSecretAsync("api-key");</code>';
+        showResult('secureSecretResult', 'info', '☁️ Azure Key Vault Method Set', {
+            method: "Enterprise secret management with Azure Key Vault",
+            security: "Hardware security modules, access logging, automatic rotation",
+            note: "Click 'Test Secure Secret Loading' for production implementation"
+        });
+    }
+
+    // Update code examples when dropdown changes
+    document.getElementById('vulnSecretType').addEventListener('change', function() {
+        const examples = {
+            apikey: 'const apiKey = "sk_live_abc123xyz789_VERY_SECRET_KEY";',
+            database: 'string conn = "Server=prod;User=admin;Password=Secret123!";',
+            jwt: 'const secret = "my-super-secret-jwt-key-123456";',
+            oauth: 'const clientSecret = "oauth_secret_abc123xyz789";'
+        };
+        document.getElementById('vulnCodeExample').innerHTML = `<code>${examples[this.value]}</code>`;
+    });
+
+    document.getElementById('secureSecretMethod').addEventListener('change', function() {
+        const examples = {
+            env: 'var secret = Environment.GetEnvironmentVariable("API_KEY");',
+            usersecrets: 'var secret = _config["UserSecrets:ApiKey"];',
+            keyvault: 'var secret = await keyVault.GetSecretAsync("api-key");',
+            config: 'var secret = _config.GetConnectionString("ApiKey");'
+        };
+        document.getElementById('secureCodeExample').innerHTML = `<code>${examples[this.value]}</code>`;
+    });
+</script>
+}

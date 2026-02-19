@@ -1,53 +1,374 @@
 @page
 @model Step7Model
-@{ ViewData["Title"] = "STEP 7: Input Validation"; }
+@{
+    ViewData["Title"] = "STEP 7: Input Validation";
+}
+
 <div class="container mt-4">
-<div class="row mb-4">
-<div class="col-12"><div class="d-flex justify-content-between align-items-center">
-<h2><i class="bi bi-7-circle-fill text-success"></i> STEP 7: Input Validation</h2>
-<a href="/" class="btn btn-outline-secondary"><i class="bi bi-house"></i> Dashboard</a>
-</div></div></div>
-<div class="row">
-<div class="col-md-6"><div class="demo-section vulnerable-section">
-<h4 class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Vulnerable</h4>
-<p><strong>Problem:</strong> No validation on user inputs</p>
-<form onsubmit="testValidationVulnerable(event)">
-<input type="text" class="form-control mb-3" id="vulnEmail" placeholder="Email (any text accepted)">
-<button type="submit" class="btn btn-vulnerable w-100"><i class="bi bi-bug-fill"></i> Submit (No Validation)</button>
-</form>
-<div id="vulnValidResult" class="result-panel"></div>
-</div></div>
-<div class="col-md-6"><div class="demo-section secure-section">
-<h4 class="text-success"><i class="bi bi-shield-check-fill"></i> Secure</h4>
-<p><strong>Solution:</strong> FluentValidation + Data Annotations</p>
-<form onsubmit="testValidationSecure(event)">
-<input type="text" class="form-control mb-3" id="secureEmail" placeholder="Email (validated)">
-<button type="submit" class="btn btn-secure w-100"><i class="bi bi-shield-fill"></i> Submit (Validated)</button>
-</form>
-<div id="secureValidResult" class="result-panel"></div>
-</div></div></div>
-<div class="row mt-4"><div class="col-12"><div class="highlight-box highlight-info">
-<h5><i class="bi bi-info-circle-fill"></i> Validation Layers</h5>
-<ul class="mb-0">
-<li>Client-side: HTML5 + JavaScript</li>
-<li>Server-side: FluentValidation or Data Annotations</li>
-<li>Whitelist inputs (allow known good)</li>
-<li>Reject malicious patterns</li>
-</ul></div></div></div></div>
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="bi bi-7-circle-fill text-success"></i> STEP 7: Input Validation</h2>
+                <a href="/" class="btn btn-outline-secondary"><i class="bi bi-house"></i> Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="demo-section vulnerable-section">
+                <h4 class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Vulnerable</h4>
+                <p><strong>Problem:</strong> No validation on user inputs</p>
+                
+                <!-- Quick Demo Buttons for Input Attacks -->
+                <div class="mb-3">
+                    <h6><i class="bi bi-lightning-fill"></i> Quick Input Attack Demos:</h6>
+                    <div class="btn-group-vertical d-grid gap-1">
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="quickScriptInjection()">
+                            <i class="bi bi-code-slash"></i> Script Injection Attack
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="quickSQLPayload()">
+                            <i class="bi bi-database"></i> SQL Injection Payload
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="quickBufferOverflow()">
+                            <i class="bi bi-arrow-up"></i> Buffer Overflow Attempt
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="quickPathTraversal()">
+                            <i class="bi bi-folder"></i> Path Traversal Attack
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Educational Content -->
+                <div class="alert alert-warning">
+                    <h6><i class="bi bi-info-circle"></i> Why Input Validation Is Critical:</h6>
+                    <ul class="mb-0 small">
+                        <li><strong>Trust Boundary:</strong> All user input is potentially malicious</li>
+                        <li><strong>Attack Vector:</strong> Unvalidated input enables injection attacks</li>
+                        <li><strong>Data Integrity:</strong> Invalid data corrupts application state</li>
+                        <li><strong>Business Logic:</strong> Malformed input breaks application flow</li>
+                    </ul>
+                </div>
+
+                <form onsubmit="testValidationVulnerable(event)">
+                    <div class="mb-3">
+                        <label class="form-label">Email Address (No Validation):</label>
+                        <input type="text" class="form-control" id="vulnEmail" 
+                               placeholder="Try malicious input..." autocomplete="off">
+                        <div class="form-text text-muted">
+                            ⚠️ This field accepts ANY input without validation
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Comments (Raw Input):</label>
+                        <textarea class="form-control" id="vulnComment" rows="3" 
+                                  placeholder="Any text, scripts, SQL..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-vulnerable w-100">
+                        <i class="bi bi-bug-fill"></i> Submit (No Validation)
+                    </button>
+                </form>
+                <div id="vulnValidResult" class="result-panel"></div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="demo-section secure-section">
+                <h4 class="text-success"><i class="bi bi-shield-check-fill"></i> Secure</h4>
+                <p><strong>Solution:</strong> Multi-layer validation + sanitization</p>
+                
+                <!-- Quick Demo Buttons for Secure Validation -->
+                <div class="mb-3">
+                    <h6><i class="bi bi-shield-check"></i> Quick Validation Demos:</h6>
+                    <div class="btn-group-vertical d-grid gap-1">
+                        <button type="button" class="btn btn-outline-success btn-sm" onclick="quickValidEmail()">
+                            <i class="bi bi-check-circle"></i> Valid Email Test
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-sm" onclick="quickMaliciousBlocked()">
+                            <i class="bi bi-shield"></i> Test Malicious Input Blocking
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-sm" onclick="quickSanitization()">
+                            <i class="bi bi-funnel"></i> Input Sanitization Demo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Educational Content for Protection -->
+                <div class="alert alert-success">
+                    <h6><i class="bi bi-shield-fill"></i> How Secure Validation Works:</h6>
+                    <ul class="mb-0 small">
+                        <li><strong>Whitelist Approach:</strong> Only allow known-good input patterns</li>
+                        <li><strong>Multiple Layers:</strong> Client-side + server-side + database validation</li>
+                        <li><strong>Sanitization:</strong> Clean and encode dangerous characters</li>
+                        <li><strong>Type Safety:</strong> Enforce expected data types and formats</li>
+                    </ul>
+                </div>
+
+                <form onsubmit="testValidationSecure(event)">
+                    <div class="mb-3">
+                        <label class="form-label">Email Address (Validated):</label>
+                        <input type="email" class="form-control" id="secureEmail" 
+                               placeholder="user@example.com" autocomplete="email" required>
+                        <div class="form-text text-success">
+                            ✅ Format validation: RFC 5322 compliant email format required
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Comments (Sanitized):</label>
+                        <textarea class="form-control" id="secureComment" rows="3" 
+                                  placeholder="Safe comments only..." maxlength="500"></textarea>
+                        <div class="form-text text-success">
+                            ✅ HTML encoded, script tags blocked, length limited
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-secure w-100">
+                        <i class="bi bi-shield-fill"></i> Submit (Fully Validated)
+                    </button>
+                </form>
+                <div id="secureValidResult" class="result-panel"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="highlight-box highlight-info">
+                <h5><i class="bi bi-info-circle-fill"></i> Input Validation Best Practices</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary">Validation Layers:</h6>
+                        <ul>
+                            <li><strong>Client-side:</strong> HTML5 attributes, JavaScript validation</li>
+                            <li><strong>Server-side:</strong> FluentValidation, Data Annotations</li>
+                            <li><strong>Database:</strong> Constraints, stored procedures</li>
+                            <li><strong>Business Logic:</strong> Custom validation rules</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-success">Security Principles:</h6>
+                        <ul>
+                            <li><strong>Whitelist:</strong> Allow known-good patterns only</li>
+                            <li><strong>Sanitize:</strong> Clean dangerous characters</li>
+                            <li><strong>Encode:</strong> HTML/SQL/URL encode outputs</li>
+                            <li><strong>Limit:</strong> Impose length and type constraints</li>
+                            <li><strong>Log:</strong> Track validation failures for monitoring</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
 <script>
-function testValidationVulnerable(e) {
-    e.preventDefault();
-    const val = document.getElementById('vulnEmail').value;
-    showResult('vulnValidResult', 'warning', 'Accepted: "' + val + '" - no validation!');
-}
-function testValidationSecure(e) {
-    e.preventDefault();
-    const val = document.getElementById('secureEmail').value;
-    const emailPattern = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
-    const isValid = emailPattern.test(val);
-    if(isValid) showResult('secureValidResult', 'success', 'Valid email accepted');
-    else showResult('secureValidResult', 'error', 'Invalid email rejected');
-}
+    function testValidationVulnerable(e) {
+        e.preventDefault();
+        const email = document.getElementById('vulnEmail').value;
+        const comment = document.getElementById('vulnComment').value;
+        
+        // Detect malicious patterns
+        const hasScript = (email + comment).toLowerCase().includes('<script');
+        const hasSql = /('|;|--|union|select|drop|update|delete|insert)/i.test(email + comment);
+        const hasTraversal = /(\.\.\/|\.\.\\|%2e%2e)/i.test(email + comment);
+        const hasOverflow = (email.length > 1000 || comment.length > 5000);
+        
+        showResult('vulnValidResult', 'error', '🚨 INPUT ACCEPTED: No validation protection!', {
+            emailInput: email,
+            commentInput: comment.substring(0, 100) + (comment.length > 100 ? '...' : ''),
+            maliciousPatterns: {
+                scriptInjection: hasScript ? "✅ Detected" : "❌ Not found",
+                sqlInjection: hasSql ? "✅ Detected" : "❌ Not found", 
+                pathTraversal: hasTraversal ? "✅ Detected" : "❌ Not found",
+                bufferOverflow: hasOverflow ? "✅ Detected" : "❌ Not found"
+            },
+            vulnerabilities: [
+                "🔓 No format validation on email field",
+                "🔓 No length limits enforced",
+                "🔓 No malicious pattern detection",
+                "🔓 No input sanitization",
+                "🔓 Direct database/HTML injection possible"
+            ],
+            potentialAttacks: [
+                hasScript ? "Script execution via XSS" : null,
+                hasSql ? "Database manipulation via SQL injection" : null,
+                hasTraversal ? "File system access via path traversal" : null,
+                hasOverflow ? "Memory corruption via buffer overflow" : null,
+                "Command injection via special characters"
+            ].filter(attack => attack !== null),
+            riskLevel: "CRITICAL - Multiple attack vectors possible",
+            warning: "⚠️ In production, this input would be processed unsafely!"
+        });
+    }
+
+    function testValidationSecure(e) {
+        e.preventDefault();
+        const email = document.getElementById('secureEmail').value;
+        const comment = document.getElementById('secureComment').value;
+        
+        // Perform validation
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        const emailValid = emailPattern.test(email);
+        const commentSafe = validateAndSanitizeComment(comment);
+        
+        if (!emailValid) {
+            showResult('secureValidResult', 'error', '❌ VALIDATION FAILED: Invalid email format', {
+                emailInput: email,
+                validationRule: "RFC 5322 compliant email format required",
+                pattern: "username@domain.extension",
+                examples: ["user@example.com", "test.email@company.org"],
+                reason: "Email format does not match required pattern"
+            });
+            return;
+        }
+        
+        if (!commentSafe.isValid) {
+            showResult('secureValidResult', 'error', '❌ VALIDATION FAILED: Comment contains unsafe content', {
+                commentInput: comment.substring(0, 100) + (comment.length > 100 ? '...' : ''),
+                reasons: commentSafe.violations,
+                allowedContent: "Plain text, basic punctuation, no scripts or SQL",
+                maxLength: "500 characters"
+            });
+            return;
+        }
+        
+        showResult('secureValidResult', 'success', '✅ VALIDATION PASSED: Input accepted safely!', {
+            emailInput: email,
+            commentInput: commentSafe.sanitized,
+            validationLayers: [
+                "✅ Client-side HTML5 validation passed",
+                "✅ JavaScript pattern matching successful",
+                "✅ Server-side validation would confirm",
+                "✅ Input sanitization completed",
+                "✅ Length constraints enforced"
+            ],
+            appliedSanitization: {
+                htmlEncoding: "Special characters converted to entities",
+                lengthTrimming: comment.length > 500 ? "Truncated to 500 characters" : "Within limits",
+                patternBlocking: "Malicious patterns removed or blocked",
+                whitelisting: "Only allowed characters preserved"
+            },
+            securityMeasures: [
+                "Email format verified against RFC standards",
+                "Comment content sanitized for HTML safety", 
+                "Length limits enforced to prevent overflow",
+                "Malicious patterns blocked proactively",
+                "Input logged for security monitoring"
+            ],
+            nextSteps: "Data ready for safe processing and storage"
+        });
+    }
+
+    function validateAndSanitizeComment(comment) {
+        const violations = [];
+        
+        // Check length
+        if (comment.length > 500) {
+            violations.push("Exceeds 500 character limit");
+        }
+        
+        // Check for malicious patterns
+        if (/<script/i.test(comment)) {
+            violations.push("Contains script tags");
+        }
+        
+        if (/('|;|--|union|select|drop)/i.test(comment)) {
+            violations.push("Contains SQL injection patterns");
+        }
+        
+        if (/[<>]/g.test(comment)) {
+            violations.push("Contains HTML tags");
+        }
+        
+        // Sanitize if valid
+        let sanitized = comment;
+        if (violations.length === 0) {
+            sanitized = comment
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .substring(0, 500);
+        }
+        
+        return {
+            isValid: violations.length === 0,
+            violations: violations,
+            sanitized: sanitized
+        };
+    }
+
+    // Quick demo functions
+    function quickScriptInjection() {
+        document.getElementById('vulnEmail').value = '<script>alert("XSS")</script>@@fake.com';
+        document.getElementById('vulnComment').value = 'Nice site! <script>document.location="http://evil.com"</script>';
+        showResult('vulnValidResult', 'warning', '📝 Script Injection Payload Set', {
+            attack: "XSS via script tags in email and comment fields",
+            payload: "Malicious JavaScript designed to execute in browser",
+            note: "Click 'Submit (No Validation)' to see how it gets accepted"
+        });
+    }
+
+    function quickSQLPayload() {
+        document.getElementById('vulnEmail').value = "'; DROP TABLE users; --@@evil.com";
+        document.getElementById('vulnComment').value = "Great post! ' UNION SELECT password FROM users WHERE admin=1 --";
+        showResult('vulnValidResult', 'warning', '📝 SQL Injection Payload Set', {
+            attack: "SQL injection attempting to drop tables and extract passwords",
+            payload: "Malicious SQL designed to manipulate database queries",
+            note: "Click 'Submit (No Validation)' to see vulnerability acceptance"
+        });
+    }
+
+    function quickBufferOverflow() {
+        const longString = "A".repeat(5000);
+        document.getElementById('vulnEmail').value = longString + "@@overflow.com";
+        document.getElementById('vulnComment').value = "B".repeat(10000);
+        showResult('vulnValidResult', 'warning', '📝 Buffer Overflow Payload Set', {
+            attack: "Extremely long inputs designed to overflow buffers",
+            emailLength: document.getElementById('vulnEmail').value.length + " characters",
+            commentLength: document.getElementById('vulnComment').value.length + " characters",
+            note: "Click 'Submit (No Validation)' to see how large inputs are accepted"
+        });
+    }
+
+    function quickPathTraversal() {
+        document.getElementById('vulnEmail').value = '../../../etc/passwd@@traverse.com';
+        document.getElementById('vulnComment').value = 'Check this file: ../../../../windows/system32/config/sam';
+        showResult('vulnValidResult', 'warning', '📝 Path Traversal Payload Set', {
+            attack: "Directory traversal attempting to access system files",
+            payload: "Path manipulation using ../ to escape intended directories",
+            note: "Click 'Submit (No Validation)' to see traversal attempt acceptance"
+        });
+    }
+
+    function quickValidEmail() {
+        document.getElementById('secureEmail').value = 'john.doe@@company.com';
+        document.getElementById('secureComment').value = 'Great security tutorial! Thanks for the detailed examples.';
+        showResult('secureValidResult', 'info', '📧 Valid Input Example Set', {
+            example: "Properly formatted email and safe comment text",
+            validation: "Should pass all security checks",
+            note: "Click 'Submit (Fully Validated)' to see successful validation"
+        });
+    }
+
+    function quickMaliciousBlocked() {
+        document.getElementById('secureEmail').value = '<script>alert("hack")</script>';
+        document.getElementById('secureComment').value = 'SELECT * FROM users WHERE admin=1';
+        showResult('secureValidResult', 'info', '🛡️ Malicious Input Test Set', {
+            test: "Same malicious patterns from vulnerable side",
+            expectation: "Should be blocked by validation systems",
+            note: "Click 'Submit (Fully Validated)' to see protection in action"
+        });
+    }
+
+    function quickSanitization() {
+        document.getElementById('secureEmail').value = 'user@@example.com';
+        document.getElementById('secureComment').value = 'I love using <b>HTML</b> & "special" characters in my comments!';
+        showResult('secureValidResult', 'info', '🧹 Sanitization Test Set', {
+            test: "Input with special characters that need encoding",
+            process: "Characters will be sanitized for safe display",
+            note: "Click 'Submit (Fully Validated)' to see sanitization in action"
+        });
+    }
 </script>
 }

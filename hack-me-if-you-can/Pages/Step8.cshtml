@@ -19,7 +19,7 @@
 
     <!-- Feature Description -->
     <div class="row mb-4">
-        <div class="col-12">
+        <div class="col-md-8">
             <div class="highlight-box highlight-success">
                 <h5><i class="bi bi-shield-check"></i> Security Logging Implementation</h5>
                 <ul class="mb-0">
@@ -28,6 +28,22 @@
                     <li><strong>Events Tracked:</strong> Authentication, API calls, validation failures, rate limit violations</li>
                     <li><strong>Log Levels:</strong> Information, Warning, Error, Critical</li>
                 </ul>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="demo-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h6><i class="bi bi-lightning-fill"></i> Quick Log Demos:</h6>
+                <div class="btn-group-vertical d-grid gap-1">
+                    <button type="button" class="btn btn-light btn-sm" onclick="demoSecurityEvents()">
+                        <i class="bi bi-shield-exclamation"></i> Generate Security Events
+                    </button>
+                    <button type="button" class="btn btn-light btn-sm" onclick="demoAttackPatterns()">
+                        <i class="bi bi-bug"></i> Simulate Attack Patterns
+                    </button>
+                    <button type="button" class="btn btn-light btn-sm" onclick="demoAnalysis()">
+                        <i class="bi bi-graph-up"></i> Security Analysis Demo
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -127,6 +143,64 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Logging Best Practices -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="highlight-box highlight-info">
+                <h5><i class="bi bi-info-circle-fill"></i> Security Logging Best Practices</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary">🔍 What to Log:</h6>
+                        <ul class="small">
+                            <li><strong>Authentication Events:</strong> Login/logout, MFA, password changes</li>
+                            <li><strong>Authorization Failures:</strong> Access denied, privilege escalation attempts</li>
+                            <li><strong>Input Validation Failures:</strong> XSS, SQL injection, malformed data</li>
+                            <li><strong>Rate Limiting Events:</strong> Threshold exceeded, IP blocking</li>
+                            <li><strong>Configuration Changes:</strong> Security settings, user permissions</li>
+                            <li><strong>Data Access:</strong> Sensitive data views, exports, modifications</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-success">📊 Security Analysis:</h6>
+                        <ul class="small">
+                            <li><strong>Pattern Recognition:</strong> Detect brute force, scanning, anomalies</li>
+                            <li><strong>Correlation:</strong> Link events across time and users</li>
+                            <li><strong>Alerting:</strong> Real-time notifications for critical events</li>
+                            <li><strong>Retention:</strong> Comply with regulatory requirements</li>
+                            <li><strong>Monitoring:</strong> Dashboard views, automated analysis</li>
+                            <li><strong>Incident Response:</strong> Forensic investigation capabilities</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Log Analysis Examples -->
+                <div class="mt-3">
+                    <h6 class="text-warning">⚠️ Security Indicators to Watch:</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="alert alert-warning py-2">
+                                <strong>Brute Force:</strong><br>
+                                <small>Multiple login failures from same IP within short timeframe</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="alert alert-danger py-2">
+                                <strong>SQL Injection:</strong><br>
+                                <small>Input validation failures with SQL keywords detected</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="alert alert-info py-2">
+                                <strong>Unusual Access:</strong><br>
+                                <small>Access from new locations, times, or unusual patterns</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -262,5 +336,69 @@
         div.textContent = text;
         return div.innerHTML;
     }
-</script>
+    // Educational demo functions for security logging
+    async function demoSecurityEvents() {
+        const demoEvents = [
+            'LoginSuccess', 'LoginFailure', 'MfaSuccess', 'MfaFailure',
+            'ValidationSuccess', 'UnauthorizedAccess'
+        ];
+        
+        alert('📊 Generating diverse security events for educational analysis...\n\nThis will create:\n• Authentication events\n• MFA events\n• Validation events\n• Access control events');
+        
+        try {
+            await fetch('/api/logs/generate-test', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ eventTypes: demoEvents })
+            });
+            
+            setTimeout(() => {
+                loadLogs();
+                alert('✅ Security events generated!\n\nCheck the logs above to see patterns of normal vs suspicious activity. Look for:\n• Failed login attempts\n• MFA failures\n• Unauthorized access attempts');
+            }, 1000);
+            
+        } catch (error) {
+            alert('Failed to generate security events: ' + error.message);
+        }
+    }
+
+    async function demoAttackPatterns() {
+        const attackEvents = [
+            'SqlInjectionAttempt', 'SqlInjectionDetected', 'XssAttemptDetected',
+            'RateLimitExceeded', 'InvalidPassword'
+        ];
+        
+        alert('🚨 Simulating common attack patterns for threat detection training...\n\nThis will generate:\n• SQL injection attempts\n• XSS attack attempts\n• Brute force patterns\n• Rate limiting violations');
+        
+        try {
+            await fetch('/api/logs/generate-test', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ eventTypes: attackEvents })
+            });
+            
+            setTimeout(() => {
+                loadLogs();
+                alert('⚠️ Attack patterns simulated!\n\nAnalyze the logs to identify:\n• Injection attack attempts\n• Rate limit violations\n• Repeated failure patterns\n\nUse filters to focus on Error/Warning levels');
+            }, 1000);
+            
+        } catch (error) {
+            alert('Failed to generate attack patterns: ' + error.message);
+        }
+    }
+
+    async function demoAnalysis() {
+        alert('📈 Security Log Analysis Tutorial\n\nKey analysis techniques:\n\n1. Filter by Event Type - Focus on specific security events\n2. Filter by Log Level - Prioritize Critical/Error events\n3. Time-based Analysis - Look for patterns over time\n4. IP Analysis - Track activity by source\n5. User Analysis - Monitor user behavior patterns\n\nTry filtering the logs above using different criteria to practice threat detection!');
+        
+        // Set helpful filters for analysis
+        document.getElementById('logLevelFilter').value = 'Error';
+        document.getElementById('eventTypeFilter').value = '';
+        document.getElementById('limitFilter').value = '100';
+        
+        loadLogs();
+        
+        setTimeout(() => {
+            alert('🔍 Analysis filters applied!\n\nNow showing Error-level events. Look for:\n• Multiple failed attempts from same IP\n• SQL injection patterns\n• Authentication failures\n• Unusual access patterns\n\nClick "View Details" buttons to see full event data');
+        }, 1500);
+    }</script>
 }

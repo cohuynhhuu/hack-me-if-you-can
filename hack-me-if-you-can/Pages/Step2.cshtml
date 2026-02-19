@@ -21,11 +21,26 @@
                 <p><strong>Problem:</strong> Unescaped user input rendered in HTML</p>
                 <div class="mb-3">
                     <label class="form-label">Comment (Try: <code>&lt;script&gt;alert("XSS")&lt;/script&gt;</code>)</label>
-                    <textarea class="form-control" id="vulnComment" rows="3"></textarea>
+                    <textarea class="form-control" id="vulnComment" rows="3" placeholder="Enter your comment here..."></textarea>
+                    <div class="form-text text-muted">
+                        <strong>XSS Payloads to Test:</strong><br>
+                        • <code>&lt;script&gt;alert("XSS Attack!")&lt;/script&gt;</code> - Basic script injection<br>
+                        • <code>&lt;img src="x" onerror="alert('XSS')"&gt;</code> - Event handler injection<br>
+                        • <code>&lt;svg onload="alert('XSS')"&gt;&lt;/svg&gt;</code> - SVG injection<br>
+                        <span class="text-danger">⚠️ These scripts execute immediately in vulnerable code!</span>
+                    </div>
                 </div>
-                <button class="btn btn-vulnerable w-100" onclick="testXSSVulnerable()">
-                    <i class="bi bi-bug-fill"></i> Test Vulnerable
+                <button class="btn btn-vulnerable w-100 mb-2" onclick="testXSSVulnerable()">
+                    <i class="bi bi-bug-fill"></i> Test Vulnerable (RAW HTML)
                 </button>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-danger btn-sm" onclick="document.getElementById('vulnComment').value = `<script>alert('XSS Attack!');</script>`; testXSSVulnerable()">
+                        <i class="bi bi-lightning-fill"></i> Quick Demo: Script Injection
+                    </button>
+                    <button class="btn btn-outline-warning btn-sm" onclick="document.getElementById('vulnComment').value = `<img src='x' onerror='alert(\"Stolen Data!\")' />`; testXSSVulnerable()">
+                        <i class="bi bi-lightning-fill"></i> Quick Demo: Image Event Attack
+                    </button>
+                </div>
                 <div id="vulnXSSResult" class="result-panel"></div>
             </div>
         </div>
@@ -36,11 +51,25 @@
                 <p><strong>Solution:</strong> Automatic HTML encoding + CSP headers</p>
                 <div class="mb-3">
                     <label class="form-label">Comment (Same input - sanitized)</label>
-                    <textarea class="form-control" id="secureComment" rows="3"></textarea>
+                    <textarea class="form-control" id="secureComment" rows="3" placeholder="Enter the same malicious input..."></textarea>
+                    <div class="form-text text-success">
+                        <strong>Protection Mechanisms:</strong><br>
+                        • HTML encoding converts &lt; &gt; to safe entities<br>
+                        • Content Security Policy blocks inline scripts<br>
+                        • Input validation rejects dangerous patterns
+                    </div>
                 </div>
-                <button class="btn btn-secure w-100" onclick="testXSSSecure()">
-                    <i class="bi bi-shield-fill"></i> Test Secure
+                <button class="btn btn-secure w-100 mb-2" onclick="testXSSSecure()">
+                    <i class="bi bi-shield-fill"></i> Test Secure (HTML Encoded)
                 </button>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-success btn-sm" onclick="document.getElementById('secureComment').value = `<script>alert('XSS Attack!');</script>`; testXSSSecure()">
+                        <i class="bi bi-shield-fill"></i> Try Same Injection - Watch It Get Blocked!
+                    </button>
+                    <button class="btn btn-outline-info btn-sm" onclick="document.getElementById('secureComment').value = `This is a normal comment with <special> characters.`; testXSSSecure()">
+                        <i class="bi bi-chat-fill"></i> Normal Comment with Special Chars
+                    </button>
+                </div>
                 <div id="secureXSSResult" class="result-panel"></div>
             </div>
         </div>
@@ -65,19 +94,94 @@
 <script>
     function testXSSVulnerable() {
         const comment = document.getElementById('vulnComment').value;
-        document.getElementById('vulnXSSResult').innerHTML = 
-            `<strong>RAW OUTPUT:</strong><br>${comment}`;
-        document.getElementById('vulnXSSResult').className = 'result-panel result-warning';
-        document.getElementById('vulnXSSResult').style.display = 'block';
+        if (!comment.trim()) {
+            showResult('vulnXSSResult', 'warning', 'Please enter some content to test');
+            return;
+        }
+
+        // Detect XSS patterns
+        const hasScript = comment.toLowerCase().includes('<script');
+        const hasEvent = /on\w+\s*=/i.test(comment);
+        const hasSvg = comment.toLowerCase().includes('<svg');
+        const hasImg = comment.toLowerCase().includes('<img');
+        
+        // DANGEROUS: Directly inject HTML (simulating vulnerable app)
+        showResult('vulnXSSResult', 'error', '🚨 XSS VULNERABLE: Raw HTML injected!', {
+            userInput: comment,
+            renderedAs: "Direct HTML injection (DANGEROUS!)",
+            xssDetected: hasScript || hasEvent || hasSvg || hasImg,
+            vulnerability: hasScript ? "Script tag detected - executes immediately!" :
+                          hasEvent ? "Event handler detected - executes on trigger!" :
+                          hasSvg ? "SVG injection detected - executes on load!" :
+                          hasImg ? "Image injection detected - executes on error!" :
+                          "Potential HTML injection vulnerability",
+            impact: [
+                "🔓 JavaScript code execution",
+                "🔓 Session hijacking via document.cookie",
+                "🔓 Redirects to malicious sites",
+                "🔓 Data theft from forms",
+                "🔓 Keylogger installation"
+            ],
+            warning: "⚠️ In a real vulnerable app, this script would execute immediately!"
+        });
+        
+        // For demo safety, we won't actually execute the script
+        // but show how it would be dangerous
     }
 
     function testXSSSecure() {
         const comment = document.getElementById('secureComment').value;
+        if (!comment.trim()) {
+            showResult('secureXSSResult', 'warning', 'Please enter some content to test');
+            return;
+        }
+
         const escaped = escapeHtml(comment);
-        document.getElementById('secureXSSResult').innerHTML = 
-            `<strong>ESCAPED OUTPUT:</strong><br>${escaped}`;
-        document.getElementById('secureXSSResult').className = 'result-panel result-success';
-        document.getElementById('secureXSSResult').style.display = 'block';
+        const hasXssAttempt = comment !== escaped;
+        
+        showResult('secureXSSResult', 'success', '✅ XSS PROTECTED: HTML safely encoded!', {
+            userInput: comment,
+            encodedOutput: escaped,
+            protection: "HTML Encoding + Content Security Policy",
+            xssAttemptDetected: hasXssAttempt,
+            explanation: hasXssAttempt ? 
+                "🛡️ Malicious scripts detected and neutralized - special characters converted to safe HTML entities" :
+                "🔍 Normal text safely displayed with automatic HTML encoding",
+            encodingExamples: {
+                "<": "&lt;",
+                ">": "&gt;", 
+                '"': "&quot;",
+                "'": "&#039;",
+                "&": "&amp;"
+            },
+            securityLayers: [
+                "✅ ASP.NET Core auto-encoding",
+                "✅ Content Security Policy headers", 
+                "✅ Input validation",
+                "✅ HttpOnly cookie flags",
+                "✅ Trusted sources only"
+            ],
+            result: hasXssAttempt ? 
+                "Script tags displayed as text, not executed as code" :
+                "Content displayed safely as intended"
+        });
+    }
+
+    // Quick demo functions
+    function quickXSSScript() {
+        document.getElementById('vulnComment').value = '<script>alert("XSS Attack!");</script>';
+    }
+
+    function quickXSSImageEvent() {
+        document.getElementById('vulnComment').value = '<img src="invalid" onerror="alert(\'Malicious XSS via Image Event!\')">';
+    }
+
+    function quickXSSSecureTest() {
+        document.getElementById('secureComment').value = '<script>alert("XSS Attack!");</script>';
+    }
+
+    function quickXSSNormalText() {
+        document.getElementById('secureComment').value = 'Great tutorial! Here is my feedback with <special> characters & "quotes"...';
     }
 </script>
 }
