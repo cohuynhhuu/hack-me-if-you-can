@@ -1,4 +1,4 @@
-# 🔐 STEP 2: Form Validation - Server-Side Protection
+# 🔐 DEMO 2: Form Validation - Server-Side Protection
 
 ## 🎯 Goal
 Prevent invalid or malicious user input from reaching your database using **server-side validation**.
@@ -309,7 +309,7 @@ for i in range(1000):
 
 #### 1. **Input Sanitization**
 ```csharp
-// STEP 2: Server validates EVERY request
+// DEMO 2: Server validates EVERY request
 if (!ModelState.IsValid)
 {
     return BadRequest(errors); // Reject invalid data
@@ -523,11 +523,11 @@ Server-Side Validation = MANDATORY
 
 ## 🚀 Next Steps
 
-- ✅ **STEP 1:** Plain text passwords (DONE - showed the problem)
-- ✅ **STEP 2:** Form validation (DONE - prevent bad input)
-- ⏭️ **STEP 3:** Password hashing (coming next)
-- ⏭️ **STEP 4:** Secure password policies
-- ⏭️ **STEP 5:** Rate limiting & account lockout
+- ✅ **DEMO 1:** Plain text passwords (DONE - showed the problem)
+- ✅ **DEMO 2:** Form validation (DONE - prevent bad input)
+- ⏭️ **DEMO 3:** Password hashing (coming next)
+- ⏭️ **DEMO 4:** Secure password policies
+- ⏭️ **DEMO 5:** Rate limiting & account lockout
 
 ---
 
@@ -536,11 +536,11 @@ Server-Side Validation = MANDATORY
 Save as `test-validation.ps1`:
 
 ```powershell
-# Test STEP 2 - Form Validation
+# Test DEMO 2 - Form Validation
 
 $baseUrl = "http://localhost:5000/api/auth"
 
-Write-Host "🧪 Testing Form Validation (STEP 2)" -ForegroundColor Cyan
+Write-Host "🧪 Testing Form Validation (DEMO 2)" -ForegroundColor Cyan
 Write-Host "====================================`n"
 
 # Test 1: Valid registration

@@ -1,8 +1,8 @@
-# STEP 4: XSS (Cross-Site Scripting) Prevention
+# DEMO 4: XSS (Cross-Site Scripting) Prevention
 
 ## 🎯 Learning Objectives
 
-By the end of this step, you will understand:
+By the end of this demo, you will understand:
 - What XSS (Cross-Site Scripting) attacks are and how they work
 - The three types of XSS: Reflected, Stored, and DOM-based
 - How XSS can steal cookies, session tokens, and sensitive data
@@ -787,7 +787,7 @@ Start-Process "$baseUrl/xss-demo"
 
 ## 🚀 Next Steps
 
-**STEP 5: Rate Limiting & Brute-Force Protection**
+**DEMO 5: Rate Limiting & Brute-Force Protection**
 - Implement request throttling
 - Prevent credential stuffing
 - Account lockout policies

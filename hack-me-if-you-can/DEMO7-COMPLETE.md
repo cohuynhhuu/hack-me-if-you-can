@@ -1,4 +1,4 @@
-# STEP 7: Multi-Factor Authentication (MFA) - COMPLETE ✅
+# DEMO 7: Multi-Factor Authentication (MFA) - COMPLETE ✅
 
 ## Overview
 
@@ -524,7 +524,7 @@ public async Task<IActionResult> LoginWithMfa([FromBody] LoginWithMfaRequest req
 - `Models/MfaModels.cs` - Request/response DTOs
 - `Migrations/[timestamp]_AddMfaFields.cs` - Database migration
 - `test-mfa-simple.ps1` - Interactive test script
-- `STEP7-COMPLETE.md` - This documentation
+- `DEMO7-COMPLETE.md` - This documentation
 
 ### Modified Files
 
@@ -592,4 +592,4 @@ Successfully implemented **Multi-Factor Authentication** to demonstrate:
 
 **Result:** Even with a stolen password, attackers cannot access accounts protected by MFA!
 
-🎉 **STEP 7 COMPLETE!**
+🎉 **DEMO 7 COMPLETE!**

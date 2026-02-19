@@ -7,8 +7,8 @@ Educational demonstration of password security evolution from **insecure** to **
 
 ## 📚 Learning Path
 
-### ✅ **STEP 1: Plain Text Passwords** (Baseline - Insecure)
-**📖 [Full Documentation: STEP1-PASSWORD-SECURITY.md](STEP1-PASSWORD-SECURITY.md)**
+### ✅ **DEMO 1: Plain Text Passwords** (Baseline - Insecure)
+**📜 [Full Documentation: DEMO1-PASSWORD-SECURITY.md](DEMO1-PASSWORD-SECURITY.md)**
 
 Demonstrates why storing passwords in plain text is dangerous:
 
@@ -18,8 +18,8 @@ Demonstrates why storing passwords in plain text is dangerous:
 
 **Key Learning:** Hashing is one-way (not reversible). Same password produces different hashes due to unique salts.
 
-### ✅ **STEP 2: Form Validation** (Input Protection)
-**📖 [Full Documentation: STEP2-VALIDATION.md](STEP2-VALIDATION.md)**
+### ✅ **DEMO 2: Form Validation** (Input Protection)
+**📜 [Full Documentation: DEMO2-VALIDATION.md](DEMO2-VALIDATION.md)**
 
 Implements server-side validation to prevent invalid/malicious input:
 
@@ -30,8 +30,8 @@ Implements server-side validation to prevent invalid/malicious input:
 
 **Key Learning:** Client-side validation is NOT security - it's UX. Server-side validation is MANDATORY.
 
-### ✅ **STEP 3: SQL Injection** (Database Attack Prevention)
-**📖 [Full Documentation: STEP3-SQL-INJECTION.md](STEP3-SQL-INJECTION.md)**
+### ✅ **DEMO 3: SQL Injection** (Database Attack Prevention)
+**📜 [Full Documentation: DEMO3-SQL-INJECTION.md](DEMO3-SQL-INJECTION.md)**
 
 Demonstrates SQL Injection attacks and prevention:
 
@@ -44,8 +44,8 @@ Demonstrates SQL Injection attacks and prevention:
 
 **🧪 Test:** Run `.\test-sql-injection.ps1` to see attacks and defenses in action.
 
-### ✅ **STEP 4: XSS Prevention** (Cross-Site Scripting Defense)
-**📖 [Full Documentation: STEP4-XSS-PREVENTION.md](STEP4-XSS-PREVENTION.md)**
+### ✅ **DEMO 4: XSS Prevention** (Cross-Site Scripting Defense)
+**📜 [Full Documentation: DEMO4-XSS-PREVENTION.md](DEMO4-XSS-PREVENTION.md)**
 
 Demonstrates XSS attacks and HTML encoding protection:
 
@@ -58,8 +58,8 @@ Demonstrates XSS attacks and HTML encoding protection:
 
 **🧪 Test:** Run `.\test-xss.ps1` to see XSS attacks and encoding protection in action.
 
-### ✅ **STEP 5: CAPTCHA Protection** (Bot Attack Prevention)
-**📖 [Full Documentation: STEP5-CAPTCHA-PROTECTION.md](STEP5-CAPTCHA-PROTECTION.md)**
+### ✅ **DEMO 5: CAPTCHA Protection** (Bot Attack Prevention)
+**📜 [Full Documentation: DEMO5-CAPTCHA-PROTECTION.md](DEMO5-CAPTCHA-PROTECTION.md)**
 
 Demonstrates bot attack prevention with Google reCAPTCHA:
 
@@ -72,8 +72,8 @@ Demonstrates bot attack prevention with Google reCAPTCHA:
 
 **🧪 Test:** Open `http://localhost:5000/test-captcha.html` for interactive demo.
 
-### ✅ **STEP 6: JWT Authentication** (Stateless API Security)
-**📖 [Full Documentation: STEP6-COMPLETE.md](STEP6-COMPLETE.md)**
+### ✅ **DEMO 6: JWT Authentication** (Stateless API Security)
+**📜 [Full Documentation: DEMO6-COMPLETE.md](DEMO6-COMPLETE.md)**
 
 Demonstrates JWT (JSON Web Token) authentication for modern APIs:
 
@@ -86,8 +86,8 @@ Demonstrates JWT (JSON Web Token) authentication for modern APIs:
 
 **🧪 Test:** Run `.\test-jwt.ps1` to see JWT generation, validation, and `[Authorize]` protection.
 
-### ✅ **STEP 7: Multi-Factor Authentication (MFA)** (Blocks Credential Stuffing)
-**📖 [Full Documentation: STEP7-COMPLETE.md](STEP7-COMPLETE.md)**
+### ✅ **DEMO 7: Multi-Factor Authentication (MFA)** (Blocks Credential Stuffing)
+**📜 [Full Documentation: DEMO7-COMPLETE.md](DEMO7-COMPLETE.md)**
 
 Demonstrates Google Authenticator (TOTP) integration:
 
@@ -100,9 +100,9 @@ Demonstrates Google Authenticator (TOTP) integration:
 
 **🧪 Test:** Run `.\test-mfa-simple.ps1` and scan QR code with Google Authenticator app.
 
-### ✅ **STEP 8: System Logging & Security Auditing**
+### ✅ **DEMO 8: System Logging & Security Auditing**
 
-**📖 [Full Documentation: STEP8-COMPLETE.md](STEP8-COMPLETE.md)**
+**📜 [Full Documentation: DEMO8-COMPLETE.md](DEMO8-COMPLETE.md)**
 
 Demonstrates comprehensive security logging with **dual storage**:
 
@@ -115,7 +115,7 @@ Demonstrates comprehensive security logging with **dual storage**:
 
 **🧪 Test:** Run `.\test-security-logging.ps1` to see events logged to `logs/security-logs-{date}.json` AND `SecurityLogs` database table.
 
-### 🔜 **STEP 9: Rate Limiting & Account Lockout** (Coming Next)
+### 🔜 **DEMO 9: Rate Limiting & Account Lockout** (Coming Next)
 
 Will implement request throttling, temporary blocks, and distributed attack prevention.
 
@@ -205,7 +205,7 @@ API will be available at: `http://localhost:5000`
 
 ## 📡 API Endpoints
 
-### **STEP 1: Insecure Registration** (Shows the Problem)
+### **DEMO 1: Insecure Registration** (Shows the Problem)
 ```http
 POST /api/auth/register-insecure
 Content-Type: application/json
@@ -219,7 +219,7 @@ Content-Type: application/json
 
 ---
 
-### **STEP 2: Secure Registration** (With Validation & Hashing)
+### **DEMO 2: Secure Registration** (With Validation & Hashing)
 ```http
 POST /api/auth/register-secure
 Content-Type: application/json
@@ -237,7 +237,7 @@ Content-Type: application/json
 
 ---
 
-### **STEP 2: Test Validation** (Invalid Inputs)
+### **DEMO 2: Test Validation** (Invalid Inputs)
 
 **Invalid Email:**
 ```bash

@@ -1,4 +1,4 @@
-# STEP 8: System Logging & Security Auditing
+# DEMO 8: System Logging & Security Auditing
 
 ## 🎯 Overview
 
@@ -411,7 +411,7 @@ public AuthController(..., SecurityLogService securityLog)
 **Output**:
 ```
 ======================================================================
-STEP 8: Security Logging Testing
+DEMO 8: Security Logging Testing
 ======================================================================
 
 Test 1: Login WITHOUT Logging (BAD)
@@ -563,7 +563,7 @@ ORDER BY Count DESC
 **Detection**: 5 failed logins in 20 seconds from same IP
 
 **Response**:
-1. Block IP address (rate limiting - STEP 9)
+1. Block IP address (rate limiting - DEMO 9)
 2. Alert security team
 3. Notify user (password reset email)
 
@@ -804,13 +804,13 @@ var pseudoId = GeneratePseudonymousId(userId);
 
 ## 🚀 What's Next?
 
-**STEP 9**: Rate Limiting & Account Lockout
+**DEMO 9**: Rate Limiting & Account Lockout
 - Prevent brute force attacks
 - Temporary IP blocking
 - Account lockout after N failures
 - CAPTCHA after suspicious activity
 
-**STEP 10**: Advanced Monitoring
+**DEMO 10**: Advanced Monitoring
 - Real-time threat detection
 - Anomaly detection (unusual login times/locations)
 - Security dashboards
@@ -852,4 +852,4 @@ var pseudoId = GeneratePseudonymousId(userId);
 
 **With file + database logging**: Detect and respond in hours/days + prove compliance
 
-🎉 **STEP 8 Complete!** Dual security logging (file + database) is now operational.
+🎉 **DEMO 8 Complete!** Dual security logging (file + database) is now operational.

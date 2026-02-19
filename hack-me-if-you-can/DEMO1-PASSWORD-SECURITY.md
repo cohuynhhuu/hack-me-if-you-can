@@ -1,8 +1,8 @@
-# STEP 1: Password Security - Plain Text vs Hashing
+# DEMO 1: Password Security - Plain Text vs Hashing
 
 ## 🎯 Learning Objectives
 
-By the end of this step, you will understand:
+By the end of this demo, you will understand:
 - Why storing plain text passwords is a critical security vulnerability
 - How password hashing protects user credentials
 - The difference between encryption and hashing
@@ -540,12 +540,12 @@ public class AuthController : ControllerBase
 
 ## 🚀 Next Steps
 
-**STEP 2: Form Validation**
+**DEMO 2: Form Validation**
 - Learn why input validation is critical
 - Implement DataAnnotations
 - Prevent malicious input
 
-**STEP 3: SQL Injection Prevention**
+**DEMO 3: SQL Injection Prevention**
 - Understand database attack vectors
 - Use parameterized queries
 - Protect against injection attacks

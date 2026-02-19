@@ -1,8 +1,8 @@
-# STEP 5: CAPTCHA Protection (Bot Prevention)
+# DEMO 5: CAPTCHA Protection (Bot Prevention)
 
 ## 🎯 Learning Objectives
 
-By the end of this step, you will understand:
+By the end of this demo, you will understand:
 - What credential stuffing attacks are and how they work
 - Why CAPTCHA is critical for preventing automated attacks
 - How to integrate Google reCAPTCHA v2/v3
@@ -40,17 +40,17 @@ Bot:    10,000 login attempts per second = 36,000,000/hour
 ### How It Works:
 
 ```
-STEP 1: Attacker obtains leaked credentials from data breaches
+**Attack Step 1:** Attacker obtains leaked credentials from data breaches
 ├─ Database leak from Company A (2 million email:password pairs)
 ├─ Database leak from Company B (5 million credentials)
 └─ Dark web credential databases (hundreds of millions)
 
-STEP 2: Attacker uses automated tool to test credentials
+**Attack Step 2:** Attacker uses automated tool to test credentials
 ├─ Bot sends 10,000 login requests per minute
 ├─ Uses real email addresses and passwords from breaches
 └─ Tests credentials against YOUR application
 
-STEP 3: Successful logins give attacker access
+**Attack Step 3:** Successful logins give attacker access
 ├─ Many users reuse passwords across sites
 ├─ Attacker gains access to valid accounts
 └─ Can steal data, make purchases, send spam

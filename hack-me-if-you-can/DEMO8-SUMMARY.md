@@ -1,4 +1,4 @@
-# STEP 8 Summary: Security Logging & Auditing
+# DEMO 8 Summary: Security Logging & Auditing
 
 ## What Was Built
 
@@ -311,7 +311,7 @@ ORDER BY Timestamp DESC
 - ✅ Detect breaches in hours/days
 - ✅ Full forensic timeline
 - ✅ Compliance proof for auditors
-- ✅ Block automated attacks (rate limiting in STEP 9)
+- ✅ Block automated attacks (rate limiting in DEMO 9)
 - ✅ Complete audit trail
 
 ## Log Levels Explained
@@ -336,7 +336,7 @@ ORDER BY Timestamp DESC
 ...
 ```
 
-**Response**: Block IP after 5 failures (STEP 9 - Rate Limiting)
+**Response**: Block IP after 5 failures (DEMO 9 - Rate Limiting)
 
 ### Use Case 2: Account Takeover Investigation
 
@@ -458,7 +458,7 @@ Get-Content logs/security-logs-*.json | ConvertFrom-Json | Format-List
 
 ## What's Next?
 
-**STEP 9**: Rate Limiting & Account Lockout
+**DEMO 9**: Rate Limiting & Account Lockout
 - Prevent brute force attacks (auto-detected from logs)
 - Temporary IP blocking
 - Account lockout after N failures
@@ -485,4 +485,4 @@ Get-Content logs/security-logs-*.json | ConvertFrom-Json | Format-List
 
 **Impact**: Detect breaches in hours instead of months, prove compliance with SQL queries, reduce breach cost from $4.45M to potentially zero.
 
-🎉 **STEP 8 Complete!** Dual security logging (file + database) operational.
+🎉 **DEMO 8 Complete!** Dual security logging (file + database) operational.

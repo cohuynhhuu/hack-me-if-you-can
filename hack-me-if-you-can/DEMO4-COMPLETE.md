@@ -1,8 +1,8 @@
-# STEP 4 Complete: XSS Prevention ✅
+# DEMO 4 Complete: XSS Prevention ✅
 
 ## 🎯 What We Built
 
-STEP 4 demonstrates **Cross-Site Scripting (XSS)** vulnerabilities and prevention techniques in ASP.NET Core.
+DEMO 4 demonstrates **Cross-Site Scripting (XSS)** vulnerabilities and prevention techniques in ASP.NET Core.
 
 ---
 
@@ -10,15 +10,15 @@ STEP 4 demonstrates **Cross-Site Scripting (XSS)** vulnerabilities and preventio
 
 ### New Files
 
-- ✅ **STEP4-XSS-PREVENTION.md** - Comprehensive 40+ page guide on XSS
+- ✅ **DEMO4-XSS-PREVENTION.md** - Comprehensive 40+ page guide on XSS
 - ✅ **test-xss.ps1** - Interactive PowerShell demonstration script
 - ✅ **Models/CommentRequest.cs** - Request model for user input
-- ✅ **STEP4-COMPLETE.md** - This summary document
+- ✅ **DEMO4-COMPLETE.md** - This summary document
 
 ### Modified Files
 
 - ✅ **Controllers/AuthController.cs** - Added 4 new XSS demo endpoints
-- ✅ **README.md** - Updated with STEP 4 section
+- ✅ **README.md** - Updated with DEMO 4 section
 
 ---
 
@@ -319,7 +319,7 @@ return Ok(new { data = userInput });
 
 ## 📚 Documentation Created
 
-### STEP4-XSS-PREVENTION.md (40+ pages)
+### DEMO4-XSS-PREVENTION.md (40+ pages)
 
 **Sections Include:**
 1. What is XSS?
@@ -404,13 +404,13 @@ return Ok(new { data = userInput });
 
 ## 🚀 Next Steps
 
-### STEP 5: Rate Limiting & Brute-Force Protection
+### DEMO 5: Rate Limiting & Brute-Force Protection
 - Implement request throttling
 - Account lockout policies
 - IP-based rate limiting
 - DDoS prevention
 
-### Future Enhancements for STEP 4:
+### Future Enhancements for DEMO 4:
 - Add Content-Security-Policy middleware
 - Implement HtmlSanitizer for rich text
 - Add CSP violation reporting
@@ -420,7 +420,7 @@ return Ok(new { data = userInput });
 
 ## 📊 Project Statistics
 
-### STEP 4 Additions:
+### DEMO 4 Additions:
 - **New Endpoints:** 4 (vulnerable, secure, demo, comment API)
 - **Documentation:** 40+ pages
 - **Test Script:** 100+ lines
@@ -429,7 +429,7 @@ return Ok(new { data = userInput });
 - **Total Lines Added:** ~800+
 
 ### Overall Project:
-- **Total Steps:** 4 (Password Security, Validation, SQL Injection, XSS)
+- **Total Demos:** 4 (Password Security, Validation, SQL Injection, XSS)
 - **Total Endpoints:** 12+
 - **Documentation Pages:** 150+
 - **Test Scripts:** 4
@@ -459,7 +459,7 @@ Use these to assess understanding:
 - [x] JSON API endpoint created
 - [x] Comprehensive documentation written (40+ pages)
 - [x] PowerShell test script created
-- [x] README.md updated with STEP 4
+- [x] README.md updated with DEMO 4
 - [x] Attack scenarios documented
 - [x] Prevention techniques explained
 - [x] Real-world examples included
@@ -484,6 +484,6 @@ Use these to assess understanding:
 
 ---
 
-**🎉 STEP 4 is complete and ready for demonstration!**
+**🎉 DEMO 4 is complete and ready for demonstration!**
 
 Students can now see XSS attacks in action and understand why output encoding is critical for web security.

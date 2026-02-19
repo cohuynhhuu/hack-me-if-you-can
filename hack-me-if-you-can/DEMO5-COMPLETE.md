@@ -1,4 +1,4 @@
-# STEP 5 - CAPTCHA Protection: Implementation Complete ✅
+# DEMO 5 - CAPTCHA Protection: Implementation Complete ✅
 
 ## 🎯 What We Built
 
@@ -100,7 +100,7 @@ Interactive demo page featuring:
 - Visual feedback for attacks/blocks
 - Google test keys for demo purposes
 
-### 7. **STEP5-CAPTCHA-PROTECTION.md** (50+ pages)
+### 7. **DEMO5-CAPTCHA-PROTECTION.md** (50+ pages)
 
 Comprehensive documentation covering:
 - Credential stuffing attack mechanics
@@ -364,13 +364,13 @@ curl -X POST http://localhost:5000/api/auth/test-captcha \
 - **Always validate and verify on the server**
 
 ### **2. Layered Security (Defense in Depth)**
-- STEP 1: Hash passwords (protect against DB breach)
-- STEP 2: Validate input (prevent malformed data)
-- STEP 3: Parameterize queries (prevent SQL injection)
-- STEP 4: Encode output (prevent XSS attacks)
-- STEP 5: CAPTCHA (prevent bot attacks) ← You are here
-- STEP 6: Rate limiting (prevent abuse)
-- STEP 7: MFA (backup if password compromised)
+- DEMO 1: Hash passwords (protect against DB breach)
+- DEMO 2: Validate input (prevent malformed data)
+- DEMO 3: Parameterize queries (prevent SQL injection)
+- DEMO 4: Encode output (prevent XSS attacks)
+- DEMO 5: CAPTCHA (prevent bot attacks) ← You are here
+- DEMO 6: Rate limiting (prevent abuse)
+- DEMO 7: MFA (backup if password compromised)
 
 Each layer catches what others might miss!
 
@@ -440,7 +440,7 @@ export ReCaptcha__SecretKey="prod-secret-key-here"
 
 ## 🚀 Next Steps
 
-### **STEP 6: Rate Limiting & Account Lockout** (Coming Next)
+### **DEMO 6: Rate Limiting & Account Lockout** (Coming Next)
 
 Even with CAPTCHA, humans can still attack:
 - Slow brute-force (1 attempt/minute)
@@ -458,7 +458,7 @@ Even with CAPTCHA, humans can still attack:
 - Redis for distributed tracking
 - Sliding window counters
 
-### **STEP 7: Multi-Factor Authentication (2FA/MFA)**
+### **DEMO 7: Multi-Factor Authentication (2FA/MFA)**
 
 CAPTCHA proves you're human, but what if password is leaked?
 
@@ -499,8 +499,8 @@ CAPTCHA proves you're human, but what if password is leaked?
 - [x] `Program.cs` registered `ICaptchaService` with DI
 - [x] `AuthController.cs` added 4 CAPTCHA endpoints
 - [x] `test-captcha.html` created for interactive testing
-- [x] `STEP5-CAPTCHA-PROTECTION.md` comprehensive documentation
-- [x] `README.md` updated with STEP 5 section
+- [x] `DEMO5-CAPTCHA-PROTECTION.md` comprehensive documentation
+- [x] `README.md` updated with DEMO 5 section
 - [x] Google test keys configured (demo mode)
 - [ ] Build and test all endpoints
 - [ ] Create PowerShell test script (`test-captcha.ps1`)
@@ -511,7 +511,7 @@ CAPTCHA proves you're human, but what if password is leaked?
 
 ## 🎉 Summary
 
-**STEP 5 demonstrates:**
+**DEMO 5 demonstrates:**
 - ✅ Vulnerability: Login without CAPTCHA (bot paradise)
 - ✅ Solution: Server-side reCAPTCHA verification
 - ✅ Education: Why client validation isn't enough

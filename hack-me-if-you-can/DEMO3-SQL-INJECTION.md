@@ -1,4 +1,4 @@
-# 🔐 STEP 3: SQL Injection - Understanding and Prevention
+# 🔐 DEMO 3: SQL Injection - Understanding and Prevention
 
 ## 🎯 Goal
 Demonstrate how SQL Injection attacks work and how to prevent them using parameterized queries and ORMs.
@@ -553,7 +553,7 @@ Save as `test-sql-injection.ps1`:
 ```powershell
 $baseUrl = "http://localhost:5000/api/auth"
 
-Write-Host "`n🧪 STEP 3: SQL Injection Testing" -ForegroundColor Cyan
+Write-Host "`n🧪 DEMO 3: SQL Injection Testing" -ForegroundColor Cyan
 Write-Host "================================`n" -ForegroundColor Cyan
 
 # Setup: Register a test user
@@ -648,11 +648,11 @@ User Input + Parameterization = Safe ✅
 
 ## 🚀 Next Steps
 
-- ✅ **STEP 1:** Plain text passwords
-- ✅ **STEP 2:** Form validation
-- ✅ **STEP 3:** SQL Injection prevention
-- ⏭️ **STEP 4:** Password hashing best practices
-- ⏭️ **STEP 5:** Rate limiting & brute-force protection
+- ✅ **DEMO 1:** Plain text passwords
+- ✅ **DEMO 2:** Form validation
+- ✅ **DEMO 3:** SQL Injection prevention
+- ⏭️ **DEMO 4:** Password hashing best practices
+- ⏭️ **DEMO 5:** Rate limiting & brute-force protection
 
 ---
 

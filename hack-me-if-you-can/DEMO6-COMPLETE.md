@@ -1,4 +1,4 @@
-# STEP 6 - JWT Authentication: Implementation Complete ✅
+# DEMO 6 - JWT Authentication: Implementation Complete ✅
 
 ## 🎯 What We Built
 
@@ -589,14 +589,14 @@ Request → Verify Signature → Extract Claims → Respond
 - [x] `test-jwt.ps1` comprehensive test script created
 - [x] Build successful, no compilation errors
 - [ ] Run tests and verify all scenarios work
-- [ ] Create comprehensive documentation (STEP6-JWT-AUTHENTICATION.md)
-- [ ] Update README.md with STEP 6 section
+- [ ] Create comprehensive documentation (DEMO6-JWT-AUTHENTICATION.md)
+- [ ] Update README.md with DEMO 6 section
 
 ---
 
 ## 🎉 Summary
 
-**STEP 6 demonstrates:**
+**DEMO 6 demonstrates:**
 - ✅ Vulnerability: Session-based auth (doesn't scale)
 - ✅ Solution: JWT stateless authentication
 - ✅ Education: Token structure, signing, expiration
@@ -610,7 +610,7 @@ Request → Verify Signature → Extract Claims → Respond
 - Stateless auth is the future of APIs
 
 **Next Steps:**
-- STEP 7: Rate Limiting & Account Lockout (prevent brute-force even with JWT)
+- DEMO 7: Rate Limiting & Account Lockout (prevent brute-force even with JWT)
 - Advanced: Refresh tokens, token blacklisting, role-based claims
 
 ---
