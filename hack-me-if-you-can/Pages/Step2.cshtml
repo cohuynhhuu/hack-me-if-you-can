@@ -34,10 +34,10 @@
                     <i class="bi bi-bug-fill"></i> Test Vulnerable (RAW HTML)
                 </button>
                 <div class="d-grid gap-2">
-                    <button class="btn btn-outline-danger btn-sm" onclick="document.getElementById('vulnComment').value = `<script>alert('XSS Attack!');</script>`; testXSSVulnerable()">
+                    <button class="btn btn-outline-danger btn-sm" onclick="setVulnerableExample('script')">
                         <i class="bi bi-lightning-fill"></i> Quick Demo: Script Injection
                     </button>
-                    <button class="btn btn-outline-warning btn-sm" onclick="document.getElementById('vulnComment').value = `<img src='x' onerror='alert(\"Stolen Data!\")' />`; testXSSVulnerable()">
+                    <button class="btn btn-outline-warning btn-sm" onclick="setVulnerableExample('image')">
                         <i class="bi bi-lightning-fill"></i> Quick Demo: Image Event Attack
                     </button>
                 </div>
@@ -63,10 +63,10 @@
                     <i class="bi bi-shield-fill"></i> Test Secure (HTML Encoded)
                 </button>
                 <div class="d-grid gap-2">
-                    <button class="btn btn-outline-success btn-sm" onclick="document.getElementById('secureComment').value = `<script>alert('XSS Attack!');</script>`; testXSSSecure()">
+                    <button class="btn btn-outline-success btn-sm" onclick="setSecureExample('script')">
                         <i class="bi bi-shield-fill"></i> Try Same Injection - Watch It Get Blocked!
                     </button>
-                    <button class="btn btn-outline-info btn-sm" onclick="document.getElementById('secureComment').value = `This is a normal comment with <special> characters.`; testXSSSecure()">
+                    <button class="btn btn-outline-info btn-sm" onclick="setSecureExample('normal')">
                         <i class="bi bi-chat-fill"></i> Normal Comment with Special Chars
                     </button>
                 </div>
@@ -92,6 +92,29 @@
 
 @section Scripts {
 <script>
+    // Safe helper functions to set examples without auto-executing
+    function setVulnerableExample(type) {
+        const textArea = document.getElementById('vulnComment');
+        if (type === 'script') {
+            textArea.value = '<script>alert("XSS Attack!");</script>';
+        } else if (type === 'image') {
+            textArea.value = '<img src="x" onerror="alert(\'Stolen Data!\')" />';
+        }
+        // Clear any previous results
+        hideResult('vulnXSSResult');
+    }
+    
+    function setSecureExample(type) {
+        const textArea = document.getElementById('secureComment');
+        if (type === 'script') {
+            textArea.value = '<script>alert("XSS Attack!");</script>';
+        } else if (type === 'normal') {
+            textArea.value = 'This is a normal comment with <special> characters.';
+        }
+        // Clear any previous results
+        hideResult('secureXSSResult');
+    }
+
     function testXSSVulnerable() {
         const comment = document.getElementById('vulnComment').value;
         if (!comment.trim()) {
@@ -105,15 +128,15 @@
         const hasSvg = comment.toLowerCase().includes('<svg');
         const hasImg = comment.toLowerCase().includes('<img');
         
-        // DANGEROUS: Directly inject HTML (simulating vulnerable app)
-        showResult('vulnXSSResult', 'error', '🚨 XSS VULNERABLE: Raw HTML injected!', {
+        // SAFE DEMO: Show how vulnerable app would behave WITHOUT executing
+        showResult('vulnXSSResult', 'error', '🚨 XSS VULNERABLE: Raw HTML would be injected!', {
             userInput: comment,
             renderedAs: "Direct HTML injection (DANGEROUS!)",
             xssDetected: hasScript || hasEvent || hasSvg || hasImg,
-            vulnerability: hasScript ? "Script tag detected - executes immediately!" :
-                          hasEvent ? "Event handler detected - executes on trigger!" :
-                          hasSvg ? "SVG injection detected - executes on load!" :
-                          hasImg ? "Image injection detected - executes on error!" :
+            vulnerability: hasScript ? "Script tag detected - would execute immediately!" :
+                          hasEvent ? "Event handler detected - would execute on trigger!" :
+                          hasSvg ? "SVG injection detected - would execute on load!" :
+                          hasImg ? "Image injection detected - would execute on error!" :
                           "Potential HTML injection vulnerability",
             impact: [
                 "🔓 JavaScript code execution",
@@ -122,11 +145,9 @@
                 "🔓 Data theft from forms",
                 "🔓 Keylogger installation"
             ],
-            warning: "⚠️ In a real vulnerable app, this script would execute immediately!"
+            warning: "⚠️ In a real vulnerable app, this script would execute immediately!",
+            safetyNote: "🛡️ Demo Note: Script execution is blocked for safety - this shows what would happen in a vulnerable app"
         });
-        
-        // For demo safety, we won't actually execute the script
-        // but show how it would be dangerous
     }
 
     function testXSSSecure() {

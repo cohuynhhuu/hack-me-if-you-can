@@ -1,0 +1,141 @@
+@startuml
+title Learning Management System — Use Case Diagram
+left to right direction
+skinparam packageStyle rectangle
+skinparam usecase {
+    BackgroundColor #FEFECE
+    BorderColor #A80036
+    ArrowColor #A80036
+    ActorBorderColor #A80036
+    ActorBackgroundColor #FEFECE
+}
+
+' ─── Actors ───────────────────────────────────────────────────────────────────
+actor "Student"    as S
+actor "Instructor" as I
+actor "Admin"      as A
+
+' ─── System boundary ──────────────────────────────────────────────────────────
+rectangle "Learning Management System" {
+
+    ' ── Authentication ──────────────────────────────────────────────────────
+    package "Authentication" {
+        usecase "Register Account"  as UC_REG
+        usecase "Login"             as UC_LOGIN
+        usecase "Logout"            as UC_LOGOUT
+        usecase "Validate Credentials" as UC_VALIDATE
+    }
+
+    ' ── Course Management ───────────────────────────────────────────────────
+    package "Course Management" {
+        usecase "Browse Courses"        as UC1
+        usecase "Enroll in Course"      as UC2
+        usecase "View Course Materials" as UC3
+        usecase "Create Course"         as UC4
+        usecase "Edit Course"           as UC5
+        usecase "Delete Course"         as UC6
+        usecase "Upload Material"       as UC7
+        usecase "Manage Enrollments"    as UC8
+    }
+
+    ' ── Assessment ──────────────────────────────────────────────────────────
+    package "Assessment" {
+        usecase "Submit Assignment"  as UC9
+        usecase "View Grades"        as UC10
+        usecase "Take Quiz"          as UC11
+        usecase "View Quiz Results"  as UC12
+        usecase "Create Assignment"  as UC13
+        usecase "Grade Submission"   as UC14
+        usecase "Create Quiz"        as UC15
+        usecase "Add Quiz Questions" as UC16
+        usecase "View All Submissions" as UC17
+    }
+
+    ' ── Communication ───────────────────────────────────────────────────────
+    package "Communication" {
+        usecase "View Forum"       as UC18
+        usecase "Post in Forum"    as UC19
+        usecase "Reply to Post"    as UC20
+        usecase "Send Message"     as UC21
+        usecase "Read Messages"    as UC22
+    }
+
+    ' ── Analytics & Admin ───────────────────────────────────────────────────
+    package "Analytics & Administration" {
+        usecase "View Progress Dashboard" as UC23
+        usecase "View Course Analytics"   as UC24
+        usecase "Manage Users"            as UC25
+        usecase "Create User Account"     as UC26
+        usecase "Delete User"             as UC27
+        usecase "System Overview"         as UC28
+    }
+}
+
+' ─── Authentication relationships ─────────────────────────────────────────────
+S     -- UC_REG
+S     -- UC_LOGIN
+S     -- UC_LOGOUT
+I     -- UC_LOGIN
+I     -- UC_LOGOUT
+A     -- UC_LOGIN
+A     -- UC_LOGOUT
+UC_LOGIN .> UC_VALIDATE : <<include>>
+
+' ─── Student relationships ────────────────────────────────────────────────────
+S -- UC1
+S -- UC2
+S -- UC3
+S -- UC9
+S -- UC10
+S -- UC11
+S -- UC12
+S -- UC18
+S -- UC19
+S -- UC20
+S -- UC21
+S -- UC22
+S -- UC23
+
+' ─── Instructor relationships ─────────────────────────────────────────────────
+I -- UC1
+I -- UC3
+I -- UC4
+I -- UC5
+I -- UC6
+I -- UC7
+I -- UC8
+I -- UC13
+I -- UC14
+I -- UC15
+I -- UC17
+I -- UC18
+I -- UC19
+I -- UC20
+I -- UC21
+I -- UC22
+I -- UC24
+
+' ─── Admin relationships ──────────────────────────────────────────────────────
+A -- UC1
+A -- UC25
+A -- UC26
+A -- UC27
+A -- UC28
+A -- UC24
+
+' ─── <<include>> / <<extend>> ─────────────────────────────────────────────────
+UC2  .> UC1  : <<include>>
+UC3  .> UC2  : <<include>>
+UC9  .> UC3  : <<include>>
+UC11 .> UC3  : <<include>>
+
+UC4  .> UC7  : <<extend>>
+UC15 .> UC16 : <<include>>
+
+UC14 .> UC17 : <<include>>
+UC23 .> UC10 : <<include>>
+
+UC25 .> UC26 : <<extend>>
+UC25 .> UC27 : <<extend>>
+
+@enduml
